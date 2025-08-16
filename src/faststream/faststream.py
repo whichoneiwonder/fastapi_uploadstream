@@ -1,26 +1,28 @@
-from fastapi import Depends, Request
+import io
+from fastapi import Depends, Request, UploadFile
 import fastapi.dependencies
 import fastapi.param_functions
 import fastapi.params
 from typing import AsyncGenerator, Callable, Optional, List, Dict, Any, Union
 from fastapi.openapi.models import Example
 from typing_extensions import Annotated, Doc, deprecated
+from anyio  import create_memory_object_stream
+from anyio.streams.memory import MemoryObjectReceiveStream
 
 from fastapi.params import _Unset
 
-class RequestBody():
-    def __init__(self, request: Request):
+class BinaryUploadFile(UploadFile):
+    def __init__(
+            self,
+            request: Request,
+            receive_stream: MemoryObjectReceiveStream[bytes],
+        ):
+
         self.request = request
-
-    @property
-    def content_type(self) -> str:
-        return self.request.headers.get("content-type", "*/*")
-
-    def stream(self) -> AsyncGenerator[bytes]:
-        return self.request.stream()
-
-    async def body(self) -> bytes:
-        return await self.request.body()
+        self.file = receive_stream
+        self.filename = request.headers.get("x-filename")
+        self.size = request.headers.get("content-length")
+        self.content_type = request.headers.get("content-type", "*/*")
 
 class StreamBodyParam(fastapi.params.Body):
     def __init__(
@@ -60,7 +62,11 @@ class StreamBodyParam(fastapi.params.Body):
             **extra,
         )
     def __call__(self, request: Request = Depends(Request)) -> Any:
-        return RequestBody(request)
+        return UploadFile(
+            file=io.BytesIO(request._body),  # TODO: Wrap this as an async func
+            filename=request.headers.get("x-filename"),
+            size=request.headers.get("content-length"),
+        )
     
 def StreamBody(
     *,
@@ -83,8 +89,8 @@ def StreamBody(
             """
         ),
     ] = _Unset,
-    media_type: Annotated[
-        str,
+    media_types: Annotated[
+        str | list[str],
         Doc(
             """
             The media type of this parameter field. Changing it would affect the
@@ -149,124 +155,6 @@ def StreamBody(
             """
         ),
     ] = None,
-    gt: Annotated[
-        Optional[float],
-        Doc(
-            """
-            Greater than. If set, value must be greater than this. Only applicable to
-            numbers.
-            """
-        ),
-    ] = None,
-    ge: Annotated[
-        Optional[float],
-        Doc(
-            """
-            Greater than or equal. If set, value must be greater than or equal to
-            this. Only applicable to numbers.
-            """
-        ),
-    ] = None,
-    lt: Annotated[
-        Optional[float],
-        Doc(
-            """
-            Less than. If set, value must be less than this. Only applicable to numbers.
-            """
-        ),
-    ] = None,
-    le: Annotated[
-        Optional[float],
-        Doc(
-            """
-            Less than or equal. If set, value must be less than or equal to this.
-            Only applicable to numbers.
-            """
-        ),
-    ] = None,
-    min_length: Annotated[
-        Optional[int],
-        Doc(
-            """
-            Minimum length for strings.
-            """
-        ),
-    ] = None,
-    max_length: Annotated[
-        Optional[int],
-        Doc(
-            """
-            Maximum length for strings.
-            """
-        ),
-    ] = None,
-    pattern: Annotated[
-        Optional[str],
-        Doc(
-            """
-            RegEx pattern for strings.
-            """
-        ),
-    ] = None,
-    regex: Annotated[
-        Optional[str],
-        Doc(
-            """
-            RegEx pattern for strings.
-            """
-        ),
-        deprecated(
-            "Deprecated in FastAPI 0.100.0 and Pydantic v2, use `pattern` instead."
-        ),
-    ] = None,
-    discriminator: Annotated[
-        Union[str, None],
-        Doc(
-            """
-            Parameter field name for discriminating the type in a tagged union.
-            """
-        ),
-    ] = None,
-    strict: Annotated[
-        Union[bool, None],
-        Doc(
-            """
-            If `True`, strict validation is applied to the field.
-            """
-        ),
-    ] = _Unset,
-    multiple_of: Annotated[
-        Union[float, None],
-        Doc(
-            """
-            Value must be a multiple of this. Only applicable to numbers.
-            """
-        ),
-    ] = _Unset,
-    allow_inf_nan: Annotated[
-        Union[bool, None],
-        Doc(
-            """
-            Allow `inf`, `-inf`, `nan`. Only applicable to numbers.
-            """
-        ),
-    ] = _Unset,
-    max_digits: Annotated[
-        Union[int, None],
-        Doc(
-            """
-            Maximum number of allow digits for strings.
-            """
-        ),
-    ] = _Unset,
-    decimal_places: Annotated[
-        Union[int, None],
-        Doc(
-            """
-            Maximum number of decimal places allowed for numbers.
-            """
-        ),
-    ] = _Unset,
     examples: Annotated[
         Optional[List[Any]],
         Doc(
@@ -342,37 +230,43 @@ def StreamBody(
         ),
     ],
 )  -> StreamBodyParam:
+    media_sections = {
+        media_type: {
+            "schema": {
+                "type": "string",
+                "format": "binary",
+            }
+        } for media_type in (media_types if isinstance(media_types, list) else [media_types])
+    }
+    default_schema_options = media_sections.copy()
+    { 
+        # "required": True,
+        # "requestBody":{
+            "content": media_sections,
+            "required": False,
+        }
+    # }
+
+    if json_schema_extra:
+        json_schema_extra = default_schema_options.update(json_schema_extra)
 
     return StreamBodyParam(
+        embed=False,
         default=default,
         default_factory=default_factory,
-        media_type=media_type,
         alias=alias,
         alias_priority=alias_priority,
         validation_alias=validation_alias,
         serialization_alias=serialization_alias,
         title=title,
         description=description,
-        gt=gt,
-        ge=ge,
-        lt=lt,
-        le=le,
-        min_length=min_length,
-        max_length=max_length,
-        pattern=pattern,
-        regex=regex,
-        discriminator=discriminator,
-        strict=strict,
-        multiple_of=multiple_of,
-        allow_inf_nan=allow_inf_nan,
-        max_digits=max_digits,
-        decimal_places=decimal_places,
         example=example,
         examples=examples,
         openapi_examples=openapi_examples,
         deprecated=deprecated,
         include_in_schema=include_in_schema,
         json_schema_extra=json_schema_extra,
+
         **extra,
     )
 
