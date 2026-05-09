@@ -32,3 +32,4 @@ lint.select = [
     "FAST",
     "RUF",
 ]
+lint.per-file-ignores = { "tests/**.py" = ["S101"] }
