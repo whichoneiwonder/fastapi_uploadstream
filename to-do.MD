@@ -1,0 +1,92 @@
+# Publish faststreambody as a library — TODO
+
+## Packaging and metadata
+- [ ] Decide and document the stable public API.
+  - Keep `BinaryUploadFile`, `StreamBody`, and `install_streambody_openapi` public.
+  - Decide whether `StreamBodyParam` and `size_from_request` should remain exported.
+- [ ] Remove `uvicorn[standard]` from runtime dependencies in `pyproject.toml`.
+  - Move it to a dev/demo dependency group instead.
+- [ ] Add `anyio` as a direct runtime dependency, since the package imports it directly.
+- [ ] Revisit `requires-python`.
+  - Test whether the library works on Python 3.10+ or 3.11+.
+  - Lower the minimum supported version if the test matrix passes.
+- [ ] Add/complete package metadata in `pyproject.toml`.
+  - License metadata
+  - Classifiers
+  - Keywords
+  - Project URLs (Homepage, Repository, Issues, Documentation)
+- [ ] Add a `LICENSE` file and ensure it matches the README claim.
+- [ ] Decide on versioning policy for `0.x` releases and document it.
+
+## API contract and docs
+- [ ] Document the runtime contract of `BinaryUploadFile`.
+  - `read()` semantics
+  - EOF behavior
+  - `seek()` is forward-only consume-and-discard
+  - `iter_chunks()` behavior
+  - `close()` behavior
+  - `size` comes from `Content-Length` and may be `None`
+  - `filename` comes from the `x-filename` header
+- [ ] Document the differences from FastAPI `UploadFile`.
+  - Raw body streaming vs multipart uploads
+  - Not a drop-in replacement for multipart form/file handling
+- [ ] Document the OpenAPI installation requirement clearly.
+  - Runtime works with `StreamBody`
+  - OpenAPI request-body docs require `install_streambody_openapi(app)`
+- [ ] Decide what to do with partially supported `StreamBody(...)` parameters.
+  - `title`
+  - `examples`
+  - `example`
+  - `openapi_examples`
+  - `deprecated`
+- [ ] Either implement support for those parameters in OpenAPI generation or remove them from the public API.
+
+## Tests to add
+- [ ] Add `BinaryUploadFile.read()` edge-case tests.
+  - `read(0)` returns `b""`
+  - `read(-2)` raises `ValueError`
+  - repeated `read()` after EOF returns `b""`
+  - `read()` after `close()` returns `b""`
+- [ ] Add `seek()` tests.
+  - `seek(0)` no-op
+  - `seek(n)` skips bytes correctly
+  - seeking past EOF is harmless
+  - `seek(-1)` raises `ValueError`
+- [ ] Add `iter_chunks()` tests.
+  - chunk boundaries
+  - draining remaining buffered data
+  - invalid `chunk_size <= 0` raises `ValueError`
+- [ ] Add direct media-type matching tests.
+  - exact matches
+  - wildcard subtype matches like `application/*`
+  - `*/*`
+  - case-insensitivity
+  - content types with parameters like `application/json; charset=utf-8`
+- [ ] Add OpenAPI merge/patch tests.
+  - routes with existing request bodies
+  - multiple `StreamBody` dependencies
+  - description propagation
+  - behavior for examples-related fields
+
+## Compatibility matrix
+- [ ] Add CI coverage for supported Python versions.
+  - 3.10
+  - 3.11
+  - 3.12
+  - 3.13
+- [ ] Test dependencies at both minimum and latest supported versions.
+  - FastAPI: min/latest
+  - anyio: min/latest if directly bounded
+- [ ] Decide whether trio is supported.
+  - If yes, add tests for `anyio_backend = "trio"`.
+  - If no, document asyncio-only support.
+- [ ] Add a package build smoke test.
+  - Build wheel and sdist
+  - Install built artifact
+  - Import `faststreambody`
+- [ ] Add a README example smoke test.
+
+## Release readiness
+- [ ] Confirm import/install path works cleanly from a fresh virtual environment.
+- [ ] Confirm README installation and usage examples still match the released API.
+- [ ] Tag the first release only after the compatibility matrix and packaging checks pass.
