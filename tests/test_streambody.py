@@ -1,6 +1,6 @@
 from collections.abc import AsyncIterator
 import json
-from typing import Annotated
+from typing import Annotated, NotRequired, TypedDict
 
 import anyio
 import pytest
@@ -8,6 +8,63 @@ from fastapi import Depends, FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from faststreambody import BinaryUploadFile, StreamBody, install_streambody_openapi
+
+
+class ASGIVersions(TypedDict):
+    """ASGI version information."""
+
+    spec_version: str
+    version: str
+
+
+class HTTPRequestMessage(TypedDict):
+    """ASGI HTTP request body message."""
+
+    type: str
+    body: bytes
+    more_body: bool
+
+
+class HTTPDisconnectMessage(TypedDict):
+    """ASGI HTTP disconnect message."""
+
+    type: str
+
+
+class HTTPResponseStartMessage(TypedDict):
+    """ASGI HTTP response start message."""
+
+    type: str
+    status: int
+    headers: NotRequired[list[tuple[bytes, bytes]]]
+
+
+class HTTPResponseBodyMessage(TypedDict):
+    """ASGI HTTP response body message."""
+
+    type: str
+    body: NotRequired[bytes]
+    more_body: NotRequired[bool]
+
+
+class HTTPScope(TypedDict):
+    """ASGI HTTP scope."""
+
+    type: str
+    asgi: ASGIVersions
+    http_version: str
+    method: str
+    scheme: str
+    path: str
+    raw_path: bytes
+    query_string: bytes
+    root_path: str
+    headers: list[tuple[bytes, bytes]]
+    client: tuple[str, int]
+    server: tuple[str, int]
+
+
+ASGIMessage = HTTPRequestMessage | HTTPDisconnectMessage | HTTPResponseStartMessage | HTTPResponseBodyMessage
 
 
 @pytest.fixture
@@ -171,25 +228,25 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
 
     receive_call_count = 0
 
-    async def receive() -> dict[str, object]:
+    async def receive() -> ASGIMessage:
         nonlocal receive_call_count
         receive_call_count += 1
 
         if receive_call_count == 1:
-            return {"type": "http.request", "body": b"abc", "more_body": True}
+            return HTTPRequestMessage(type="http.request", body=b"abc", more_body=True)
 
         if receive_call_count == 2:
             await release_second_chunk.wait()
-            return {"type": "http.request", "body": b"def", "more_body": False}
+            return HTTPRequestMessage(type="http.request", body=b"def", more_body=False)
 
-        return {"type": "http.disconnect"}
+        return HTTPDisconnectMessage(type="http.disconnect")
 
-    sent_messages: list[dict[str, object]] = []
+    sent_messages: list[ASGIMessage] = []
 
-    async def send(message: dict[str, object]) -> None:
+    async def send(message: ASGIMessage) -> None:
         sent_messages.append(message)
 
-    scope = {
+    scope: HTTPScope = {
         "type": "http",
         "asgi": {"version": "3.0", "spec_version": "2.3"},
         "http_version": "1.1",
@@ -209,7 +266,7 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
     }
 
     async with anyio.create_task_group() as task_group:
-        task_group.start_soon(app, scope, receive, send)
+        task_group.start_soon(app, scope, receive, send) # type: ignore
 
         # The endpoint must be able to read the first bytes before the rest arrives.
         with anyio.fail_after(1):
@@ -218,7 +275,7 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
         release_second_chunk.set()
 
     status = next(
-        message["status"]
+        message["status"] # type: ignore
         for message in sent_messages
         if message["type"] == "http.response.start"
     )
