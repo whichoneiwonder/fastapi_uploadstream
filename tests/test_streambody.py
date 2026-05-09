@@ -1,5 +1,5 @@
-from collections.abc import AsyncIterator
 import json
+from collections.abc import AsyncIterator
 from typing import Annotated, NotRequired, TypedDict
 
 import anyio
@@ -194,9 +194,7 @@ def test_openapi_applies_json_schema_extra_to_binary_schema() -> None:
         return {"size": len(await body_content.read())}
 
     schema = app.openapi()
-    binary_schema = schema["paths"]["/custom"]["post"]["requestBody"]["content"][
-        "application/octet-stream"
-    ]["schema"]
+    binary_schema = schema["paths"]["/custom"]["post"]["requestBody"]["content"]["application/octet-stream"]["schema"]
 
     assert binary_schema["type"] == "string"
     assert binary_schema["format"] == "binary"
@@ -266,7 +264,7 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
     }
 
     async with anyio.create_task_group() as task_group:
-        task_group.start_soon(app, scope, receive, send) # type: ignore
+        task_group.start_soon(app, scope, receive, send)  # type: ignore
 
         # The endpoint must be able to read the first bytes before the rest arrives.
         with anyio.fail_after(1):
@@ -275,15 +273,11 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
         release_second_chunk.set()
 
     status = next(
-        message["status"] # type: ignore
+        message["status"]  # type: ignore
         for message in sent_messages
         if message["type"] == "http.response.start"
     )
-    body = b"".join(
-        message.get("body", b"")
-        for message in sent_messages
-        if message["type"] == "http.response.body"
-    )
+    body = b"".join(message.get("body", b"") for message in sent_messages if message["type"] == "http.response.body")
 
     assert status == 200
     assert json.loads(body) == {"first": "abc", "rest": "def"}

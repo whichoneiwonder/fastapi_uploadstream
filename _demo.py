@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.13"
-# dependencies = ["faststreambody", "fastapi", "uvicorn"]
+# dependencies = ["faststreambody", "fastapi", "uvicorn", "python-multipart"]
 # ///
 
 
@@ -16,6 +16,7 @@ class DemoResponse(BaseModel):
     message: str
     content_type: str
     body: str
+
 
 app = FastAPI()
 install_streambody_openapi(app)
@@ -40,15 +41,21 @@ async def upload_binary_content(
     )
 
 
-@app.post("/multipart")
-async def upload_multipart_file(
-    body_content: Annotated[UploadFile, File(title="body content")],
-) -> DemoResponse:
-    return DemoResponse(
-        message="Item created",
-        content_type=body_content.content_type or "",
-        body=(await body_content.read(1024)).hex(),
-    )
+try:
+    import multipart  # noqa: F401
+except ImportError:
+    pass
+else:
+
+    @app.post("/multipart")
+    async def upload_multipart_file(
+        body_content: Annotated[UploadFile, File(title="body content")],
+    ) -> DemoResponse:
+        return DemoResponse(
+            message="Item created",
+            content_type=body_content.content_type or "",
+            body=(await body_content.read(1024)).hex(),
+        )
 
 
 if __name__ == "__main__":

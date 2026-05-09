@@ -24,6 +24,14 @@ def size_from_request(request: Request) -> int | None:
 
 
 def _normalize_media_types(media_types: str | Iterable[str]) -> tuple[str, ...]:
+    """Normalize media type strings to a deduplicated tuple.
+
+    Args:
+        media_types: A single media type string or iterable of media type strings.
+
+    Returns:
+        A tuple of normalized media types, or ("*/*",) if no valid types provided.
+    """
     if isinstance(media_types, str):
         normalized = [media_types.strip()]
     else:
@@ -36,6 +44,17 @@ def _normalize_media_types(media_types: str | Iterable[str]) -> tuple[str, ...]:
 
 
 def _media_type_matches(content_type: str, allowed_media_type: str) -> bool:
+    """Check if a content type matches an allowed media type pattern.
+
+    Supports wildcard matching for type patterns like "application/*".
+
+    Args:
+        content_type: The actual content type from the request.
+        allowed_media_type: The pattern to match against (may include "*").
+
+    Returns:
+        True if the content type matches the allowed pattern.
+    """
     if allowed_media_type == "*/*":
         return True
 
@@ -75,6 +94,11 @@ class BinaryUploadFile:
         self._closed = False
 
     async def _pull_chunk(self) -> bytes:
+        """Pull the next chunk from the receive stream.
+
+        Returns:
+            The next chunk of bytes, or empty bytes if EOF is reached.
+        """
         if self._eof:
             return b""
 
@@ -118,7 +142,14 @@ class BinaryUploadFile:
         return out
 
     async def seek(self, offset: int) -> None:
-        """Advance the stream by consuming and discarding bytes."""
+        """Advance the stream by consuming and discarding bytes.
+
+        Args:
+            offset: Number of bytes to advance. Must be non-negative.
+
+        Raises:
+            ValueError: If offset is negative.
+        """
         if offset < 0:
             raise ValueError(f"Negative seek position: {offset}")
         if offset == 0:
@@ -132,7 +163,17 @@ class BinaryUploadFile:
             remaining -= len(chunk)
 
     async def iter_chunks(self, chunk_size: int = 64 * 1024) -> AsyncIterator[bytes]:
-        """Yield the request body in chunks."""
+        """Yield the request body in chunks of specified size.
+
+        Args:
+            chunk_size: Size of each chunk in bytes. Defaults to 64KB. Must be positive.
+
+        Yields:
+            Chunks of bytes until EOF.
+
+        Raises:
+            ValueError: If chunk_size is not positive.
+        """
         if chunk_size <= 0:
             raise ValueError("chunk_size must be > 0")
 
@@ -201,12 +242,29 @@ class StreamBodyParam:
         request: Request,
         sender: MemoryObjectSendStream[bytes],
     ) -> None:
+        """Pump request body chunks into the send stream.
+
+        Runs as a background task that continuously reads from the request
+        and forwards chunks to the send stream until the body is exhausted.
+
+        Args:
+            request: The incoming HTTP request.
+            sender: The send stream to forward chunks to.
+        """
         async with sender:
             async for chunk in request.stream():
                 if chunk:
                     await sender.send(chunk)
 
     def _validate_content_type(self, request: Request) -> None:
+        """Validate that the request content type matches allowed media types.
+
+        Args:
+            request: The incoming HTTP request.
+
+        Raises:
+            HTTPException: If content type is not in the allowed media types.
+        """
         content_type = request.headers.get("content-type", "*/*")
 
         if any(_media_type_matches(content_type, allowed) for allowed in self.media_types):
@@ -297,7 +355,15 @@ def install_streambody_openapi(app: FastAPI) -> FastAPI:
 
 
 def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> None:
-    """Patch generated OpenAPI paths with binary requestBody entries."""
+    """Patch generated OpenAPI paths with binary requestBody entries.
+
+    Scans all routes for StreamBody dependencies and injects appropriate
+    binary media type definitions into their OpenAPI operation specs.
+
+    Args:
+        app: The FastAPI application.
+        openapi_schema: The OpenAPI schema dict to modify in-place.
+    """
     paths = openapi_schema.setdefault("paths", {})
 
     for route in app.routes:
@@ -317,9 +383,7 @@ def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> 
             if not operation:
                 continue
 
-            visible_stream_bodies = [
-                stream_body for stream_body in stream_bodies if stream_body.include_in_schema
-            ]
+            visible_stream_bodies = [stream_body for stream_body in stream_bodies if stream_body.include_in_schema]
             if not visible_stream_bodies:
                 continue
 
@@ -332,7 +396,17 @@ def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> 
 
 
 def _collect_streambody_dependencies(route: APIRoute) -> list[StreamBodyParam]:
-    """Find StreamBodyParam instances reachable from an APIRoute dependency tree."""
+    """Find StreamBodyParam instances reachable from an APIRoute dependency tree.
+
+    Recursively traverses the dependency graph of an endpoint to collect
+    all StreamBodyParam instances used in its dependencies.
+
+    Args:
+        route: The API route to scan.
+
+    Returns:
+        A list of all StreamBodyParam instances found in the dependency tree.
+    """
     matches: list[StreamBodyParam] = []
 
     def visit(dependant: object) -> None:

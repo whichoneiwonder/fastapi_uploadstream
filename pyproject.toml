@@ -1,7 +1,7 @@
 [project]
 name = "faststreambody"
 version = "0.1.0"
-description = "Add your description here"
+description = "Streaming raw request-body helpers for FastAPI"
 readme = "README.md"
 authors = [{ name = "whichoneiwonder", email = "whichoneiwonder@github.com" }]
 requires-python = ">=3.13"
