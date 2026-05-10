@@ -69,7 +69,7 @@
   - behavior for examples-related fields
 
 ## Compatibility matrix
-- [ ] Add CI coverage for supported Python versions.
+- [x] Add CI coverage for supported Python versions.
   - 3.10
   - 3.11
   - 3.12

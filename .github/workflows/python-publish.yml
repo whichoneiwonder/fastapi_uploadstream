@@ -1,11 +1,6 @@
 # This workflow will upload a Python Package to PyPI when a release is created
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Upload Python Package
 
 on:
@@ -28,9 +23,10 @@ jobs:
 
       - name: Build release distributions
         run: |
-          # NOTE: put your own distribution build steps here.
           python -m pip install build
           python -m build
+          python -m pip install dist/fastapi_uploadstream-*.whl
+          python -c "import fastapi_uploadstream"
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
@@ -51,7 +47,7 @@ jobs:
     environment:
       name: pypi
       # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
-      # url: https://pypi.org/p/YOURPROJECT
+      url: https://pypi.org/p/fastapi_uploadstream/
       #
       # ALTERNATIVE: if your GitHub Release name is the PyPI project version string
       # ALTERNATIVE: exactly, uncomment the following line instead:
@@ -65,6 +61,7 @@ jobs:
           path: dist/
 
       - name: Publish release distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        # release/v1.14.0
+        uses: pypa/gh-action-pypi-publish@@cef221092ed1bacb1cc03d23a2d87d1d172e277b
         with:
           packages-dir: dist/
