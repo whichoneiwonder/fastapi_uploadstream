@@ -1,0 +1,61 @@
+site_name: FastAPI UploadStream
+site_description: Streaming raw request-body helpers for FastAPI
+site_url: https://whichoneiwonder.github.io/fastapi_uploadstream
+repo_url: https://github.com/whichoneiwonder/fastapi_uploadstream
+repo_name: whichoneiwonder/fastapi_uploadstream
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            members_order: source
+            heading_level: 2
+            show_signature_annotations: true
+
+nav:
+  - Home: index.md
+  - Usage Guide: usage.md
+  - API Reference: api-reference.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
