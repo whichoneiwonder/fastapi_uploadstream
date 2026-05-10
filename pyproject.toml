@@ -1,18 +1,54 @@
 [project]
-name = "faststreambody"
-version = "0.1.0"
-description = "Streaming raw request-body helpers for FastAPI"
+name = "fastapi_uploadstream"
+version = "0.0.1"
+description = "3rd party extension for streaming uploads in FastAPI"
+license = 'MIT'
 readme = "README.md"
 authors = [{ name = "whichoneiwonder", email = "whichoneiwonder@github.com" }]
-requires-python = ">=3.13"
-dependencies = ["fastapi>=0.116.1", "uvicorn[standard]>=0.35.0"]
-
+requires-python = ">=3.10"
+dependencies = [
+    "anyio>=3.6.2,<5",
+    "fastapi>=0.116.1",
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Topic :: Internet :: WWW/HTTP",
+    "Framework :: FastAPI",
+    "Framework :: AnyIO",
+    "License :: OSI Approved :: MIT License",
+]
+keywords = [
+    "fastapi",
+    "upload",
+    "streaming",
+    "http",
+    "asynchronous",
+]
 [build-system]
 requires = ["flit_core>=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [dependency-groups]
-dev = ["httpx>=0.28.1", "pytest>=8.4.1", "ruff>=0.12.7"]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.4.1",
+    "python-multipart>=0.0.28",
+    "ruff>=0.12.7",
+    "trio>=0.33.0",
+]
+standard = [
+    "fastapi[standard]>=0.116.1",
+]
 
 [tool.ruff]
 line-length = 120
