@@ -40,9 +40,10 @@ jobs:
       with:
         resolution-strategy: ${{matrix.dependency-pattern}}
         python-version: ${{ matrix.python-version }}
-    - name: 'install'
-      run: 'uv pip install .[dev]'
     - name: Test with python ${{ matrix.python-version }}
-      run: uv run --frozen pytest
+      run: |
+        uv venv
+        uv pip install .[dev]
+        uv run --frozen pytest
       
         
