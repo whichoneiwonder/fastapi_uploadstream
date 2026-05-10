@@ -20,7 +20,7 @@ jobs:
         uvx ruff format --check
         uvx ruff check
   test:
-    name: Test on node ${{ matrix.python-version }}
+    name: Test on Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
