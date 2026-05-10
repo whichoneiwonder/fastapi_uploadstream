@@ -43,7 +43,7 @@ jobs:
     - name: Test with python ${{ matrix.python-version }}
       run: |
         uv venv
-        uv pip install .[dev]
+        uv sync --group dev
         uv run --frozen pytest
       
         
