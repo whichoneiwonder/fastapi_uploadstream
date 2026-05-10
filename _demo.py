@@ -1,6 +1,14 @@
 # /// script
 # requires-python = ">=3.13"
-# dependencies = ["faststreambody", "fastapi", "uvicorn", "python-multipart"]
+# dependencies = [
+#     "fastapi_uploadstream",
+#     "fastapi",
+#     "uvicorn",
+#     "python-multipart",
+# ]
+#
+# [tool.uv.sources]
+# fastapi_uploadstream = { path = ".", editable = true }
 # ///
 
 
@@ -9,7 +17,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, File, UploadFile
 from pydantic import BaseModel
 
-from faststreambody import BinaryUploadFile, StreamBody, install_streambody_openapi
+from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
 
 class DemoResponse(BaseModel):
@@ -19,13 +27,13 @@ class DemoResponse(BaseModel):
 
 
 app = FastAPI()
-install_streambody_openapi(app)
+install_uploadstream_openapi(app)
 
 
 @app.post("/binary")
 async def upload_binary_content(
     body_content: Annotated[
-        BinaryUploadFile,
+        UploadStream,
         Depends(
             StreamBody(
                 media_types=["application/octet-stream", "text/plain"],
@@ -41,13 +49,16 @@ async def upload_binary_content(
     )
 
 
+# This endpoint is only available if the multipart library is installed,
+# which is an optional dependency of fastapi
+
 try:
     import multipart  # noqa: F401
 except ImportError:
     pass
 else:
 
-    @app.post("/multipart")
+    @app.post("/multipart", description="Comparison endpoint for multipart file uploads")
     async def upload_multipart_file(
         body_content: Annotated[UploadFile, File(title="body content")],
     ) -> DemoResponse:
@@ -61,8 +72,4 @@ else:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(
-        "_demo:app",
-        reload=True,
-        reload_delay=1,
-    )
+    uvicorn.run(app, port=8000)

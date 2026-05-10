@@ -1,85 +1,29 @@
 import json
 from collections.abc import AsyncIterator
-from typing import Annotated, NotRequired, TypedDict
+from typing import Annotated
 
 import anyio
 import pytest
 from fastapi import Depends, FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from faststreambody import BinaryUploadFile, StreamBody, install_streambody_openapi
+from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
+from .types import ASGIMessage, HTTPDisconnectMessage, HTTPRequestMessage, HTTPScope
 
-class ASGIVersions(TypedDict):
-    """ASGI version information."""
-
-    spec_version: str
-    version: str
-
-
-class HTTPRequestMessage(TypedDict):
-    """ASGI HTTP request body message."""
-
-    type: str
-    body: bytes
-    more_body: bool
-
-
-class HTTPDisconnectMessage(TypedDict):
-    """ASGI HTTP disconnect message."""
-
-    type: str
-
-
-class HTTPResponseStartMessage(TypedDict):
-    """ASGI HTTP response start message."""
-
-    type: str
-    status: int
-    headers: NotRequired[list[tuple[bytes, bytes]]]
-
-
-class HTTPResponseBodyMessage(TypedDict):
-    """ASGI HTTP response body message."""
-
-    type: str
-    body: NotRequired[bytes]
-    more_body: NotRequired[bool]
-
-
-class HTTPScope(TypedDict):
-    """ASGI HTTP scope."""
-
-    type: str
-    asgi: ASGIVersions
-    http_version: str
-    method: str
-    scheme: str
-    path: str
-    raw_path: bytes
-    query_string: bytes
-    root_path: str
-    headers: list[tuple[bytes, bytes]]
-    client: tuple[str, int]
-    server: tuple[str, int]
-
-
-ASGIMessage = HTTPRequestMessage | HTTPDisconnectMessage | HTTPResponseStartMessage | HTTPResponseBodyMessage
-
-
-@pytest.fixture
-def anyio_backend() -> str:
-    return "asyncio"
+# @pytest.fixture
+pytest_mark = pytest.mark.parametrize("backend", ["asyncio", "trio"])
+# def anyio_backend(backend: Literal["asyncio", "trio"]) -> str:
 
 
 def _build_runtime_app(*, include_in_schema: bool = True) -> FastAPI:
     app = FastAPI()
-    install_streambody_openapi(app)
+    install_uploadstream_openapi(app)
 
     @app.post("/binary")
     async def upload_binary(
         body_content: Annotated[
-            BinaryUploadFile,
+            UploadStream,
             Depends(
                 StreamBody(
                     media_types=["application/octet-stream", "text/plain"],
@@ -177,12 +121,12 @@ def test_openapi_respects_include_in_schema_false() -> None:
 
 def test_openapi_applies_json_schema_extra_to_binary_schema() -> None:
     app = FastAPI()
-    install_streambody_openapi(app)
+    install_uploadstream_openapi(app)
 
     @app.post("/custom")
     async def upload_custom(
         body_content: Annotated[
-            BinaryUploadFile,
+            UploadStream,
             Depends(
                 StreamBody(
                     media_types="application/octet-stream",
@@ -207,12 +151,12 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
     release_second_chunk = anyio.Event()
 
     app = FastAPI()
-    install_streambody_openapi(app)
+    install_uploadstream_openapi(app)
 
     @app.post("/binary")
     async def upload_binary(
         body_content: Annotated[
-            BinaryUploadFile,
+            UploadStream,
             Depends(StreamBody(media_types="application/octet-stream")),
         ],
     ) -> dict[str, str]:
@@ -290,12 +234,12 @@ async def test_streambody_starts_before_httpx_streaming_upload_finishes() -> Non
     response_completed = anyio.Event()
 
     app = FastAPI()
-    install_streambody_openapi(app)
+    install_uploadstream_openapi(app)
 
     @app.post("/binary")
     async def upload_binary(
         body_content: Annotated[
-            BinaryUploadFile,
+            UploadStream,
             Depends(StreamBody(media_types="application/octet-stream")),
         ],
     ) -> dict[str, str]:

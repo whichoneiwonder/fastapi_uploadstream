@@ -1,4 +1,4 @@
-# FastStreamBody
+# FastAPI UploadStream
 
 Streaming raw request-body helpers for FastAPI that enable efficient handling of large binary uploads without multipart complexity.
 
@@ -10,10 +10,11 @@ Streaming raw request-body helpers for FastAPI that enable efficient handling of
 - **OpenAPI documentation** - Auto-generate schema documentation for streaming endpoints
 - **File-like interface** - Use familiar `read()` methods for consuming streams
 
+
 ## Installation
 
 ```bash
-pip install faststreambody
+pip install fastapi_uploadstream
 ```
 
 ## Quick Start
@@ -21,15 +22,15 @@ pip install faststreambody
 ```python
 from typing import Annotated
 from fastapi import FastAPI, Depends
-from faststreambody import BinaryUploadFile, StreamBody, install_streambody_openapi
+from fastapi_uploadstream import UploadStream, StreamBody, install_uploadstream_openapi
 
 app = FastAPI()
-install_streambody_openapi(app)
+install_uploadstream_openapi(app)
 
 @app.post("/upload")
 async def upload_file(
     body_content: Annotated[
-        BinaryUploadFile,
+        UploadStream,
         Depends(
             StreamBody(
                 media_types=["application/octet-stream"],
@@ -60,14 +61,14 @@ StreamBody(
 )
 ```
 
-### BinaryUploadFile Object
+### UploadStream Object
 
-Once received, you interact with the stream through `BinaryUploadFile`:
+Once received, you interact with the stream through `UploadStream`:
 
 ```python
 @app.post("/upload")
 async def handle_upload(
-    body: Annotated[BinaryUploadFile, Depends(StreamBody(media_types=["*/*"]))]
+    body: Annotated[UploadStream, Depends(StreamBody(media_types=["*/*"]))]
 ):
     # Access file metadata
     print(f"Size: {body.size}")  # From Content-Length header
@@ -86,22 +87,23 @@ async def handle_upload(
 
 ### OpenAPI Documentation
 
-Call `install_streambody_openapi()` to add automatic schema documentation:
+Call `install_uploadstream_openapi()` to add automatic schema documentation:
 
 ```python
 app = FastAPI()
-install_streambody_openapi(app)
+install_uploadstream_openapi(app)
 ```
 
 This adds proper OpenAPI definitions for binary request bodies on your streaming endpoints.
 
 ## When to Use
 
-### ✅ Use FastStreamBody for:
+### ✅ Use UploadStream for:
 - Large file uploads (to avoid memory overhead)
+- Proxying streaming content to a backend API or storage
 - Binary data streams
-- Streaming content without multipart complexity
 - Direct binary body requests
+- Maintaining Compatibility with non-form-based legacy endpoints
 
 ### ❌ Use FastAPI's UploadFile for:
 - Multipart form uploads
@@ -114,8 +116,8 @@ This adds proper OpenAPI definitions for binary request bodies on your streaming
 @app.post("/upload-large")
 async def upload_large_file(
     body: Annotated[
-        BinaryUploadFile,
-        Depends(StreamBody(media_types=["application/octet-stream"]))
+        UploadStream,
+        Depends(StreamBody())
     ]
 ):
     bytes_received = 0
@@ -133,7 +135,7 @@ async def upload_large_file(
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.10+
 - FastAPI 0.116.1+
 - anyio (for async streaming primitives)
 

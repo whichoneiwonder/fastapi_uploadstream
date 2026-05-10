@@ -1,25 +1,25 @@
-# Publish faststreambody as a library — TODO
+# Publish `fastapi_uploadstream` as a library — TODO
 
 ## Packaging and metadata
 - [ ] Decide and document the stable public API.
-  - Keep `BinaryUploadFile`, `StreamBody`, and `install_streambody_openapi` public.
+  - Keep `UploadStream`, `StreamBody`, and `install_uploadstream_openapi` public.
   - Decide whether `StreamBodyParam` and `size_from_request` should remain exported.
-- [ ] Remove `uvicorn[standard]` from runtime dependencies in `pyproject.toml`.
+- [x] Remove `uvicorn[standard]` from runtime dependencies in `pyproject.toml`.
   - Move it to a dev/demo dependency group instead.
-- [ ] Add `anyio` as a direct runtime dependency, since the package imports it directly.
+- [x] Add `anyio` as a direct runtime dependency, since the package imports it directly.
 - [ ] Revisit `requires-python`.
   - Test whether the library works on Python 3.10+ or 3.11+.
   - Lower the minimum supported version if the test matrix passes.
-- [ ] Add/complete package metadata in `pyproject.toml`.
+- [x] Add/complete package metadata in `pyproject.toml`.
   - License metadata
   - Classifiers
   - Keywords
   - Project URLs (Homepage, Repository, Issues, Documentation)
-- [ ] Add a `LICENSE` file and ensure it matches the README claim.
+- [x] Add a `LICENSE` file and ensure it matches the README claim.
 - [ ] Decide on versioning policy for `0.x` releases and document it.
 
 ## API contract and docs
-- [ ] Document the runtime contract of `BinaryUploadFile`.
+- [ ] Document the runtime contract of `UploadStream`.
   - `read()` semantics
   - EOF behavior
   - `seek()` is forward-only consume-and-discard
@@ -32,7 +32,7 @@
   - Not a drop-in replacement for multipart form/file handling
 - [ ] Document the OpenAPI installation requirement clearly.
   - Runtime works with `StreamBody`
-  - OpenAPI request-body docs require `install_streambody_openapi(app)`
+  - OpenAPI request-body docs require `install_uploadstream_openapi(app)`
 - [ ] Decide what to do with partially supported `StreamBody(...)` parameters.
   - `title`
   - `examples`
@@ -42,7 +42,7 @@
 - [ ] Either implement support for those parameters in OpenAPI generation or remove them from the public API.
 
 ## Tests to add
-- [ ] Add `BinaryUploadFile.read()` edge-case tests.
+- [ ] Add `UploadStream.read()` edge-case tests.
   - `read(0)` returns `b""`
   - `read(-2)` raises `ValueError`
   - repeated `read()` after EOF returns `b""`
@@ -77,13 +77,13 @@
 - [ ] Test dependencies at both minimum and latest supported versions.
   - FastAPI: min/latest
   - anyio: min/latest if directly bounded
-- [ ] Decide whether trio is supported.
-  - If yes, add tests for `anyio_backend = "trio"`.
-  - If no, document asyncio-only support.
+- [x] Decide whether trio is supported.
+  - If yes, add tests for `anyio_backend = "trio"`. [x]
+  - ~~If no, document asyncio-only support.~~
 - [ ] Add a package build smoke test.
   - Build wheel and sdist
   - Install built artifact
-  - Import `faststreambody`
+  - Import `fastapi_uploadstream`
 - [ ] Add a README example smoke test.
 
 ## Release readiness

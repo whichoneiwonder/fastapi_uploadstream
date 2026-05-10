@@ -68,7 +68,7 @@ def _media_type_matches(content_type: str, allowed_media_type: str) -> bool:
     return content_base == allowed_base
 
 
-class BinaryUploadFile:
+class UploadStream:
     """A streaming view of a raw request body.
 
     This object intentionally mimics only the subset of UploadFile behavior that
@@ -216,7 +216,7 @@ class StreamBodyParam:
         self.channel_buffer_size = channel_buffer_size
         self.examples = examples
 
-    async def __call__(self, request: Request) -> AsyncIterator[BinaryUploadFile]:
+    async def __call__(self, request: Request) -> AsyncIterator[UploadStream]:
         """Yield a streaming file-like wrapper over the incoming request body."""
         self._validate_content_type(request)
 
@@ -225,7 +225,7 @@ class StreamBodyParam:
         send_stream, recv_stream = create_memory_object_stream[bytes](self.channel_buffer_size)
 
         async with create_task_group() as task_group:
-            upload = BinaryUploadFile(
+            upload = UploadStream(
                 request=request,
                 receiver=recv_stream,
                 cancel_receive=task_group.cancel_scope.cancel,
@@ -332,12 +332,12 @@ def StreamBody(
     )
 
 
-def install_streambody_openapi(app: FastAPI) -> FastAPI:
+def install_uploadstream_openapi(app: FastAPI) -> FastAPI:
     """Teach FastAPI's OpenAPI generator about StreamBody dependencies."""
     # TODO: Add an APIRouter helper that auto-installs this hook the first time a
     # router with StreamBody dependencies is included in an app. A practical shape
     # is `StreamBodyRouter(APIRouter)` plus `include_streambody_router(app, router)`
-    # that calls `install_streambody_openapi(app)` once (guarded by a private flag)
+    # that calls `install_uploadstream_openapi(app)` once (guarded by a private flag)
     # before delegating to `app.include_router(router)`.
     original_openapi = app.openapi
 
@@ -422,9 +422,9 @@ def _collect_streambody_dependencies(route: APIRoute) -> list[StreamBodyParam]:
 
 
 __all__ = [
-    "BinaryUploadFile",
     "StreamBody",
     "StreamBodyParam",
-    "install_streambody_openapi",
+    "UploadStream",
+    "install_uploadstream_openapi",
     "size_from_request",
 ]
