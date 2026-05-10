@@ -18,7 +18,7 @@ jobs:
     - name: 'lint'
       run: |
         uvx ruff format --check
-        uvc ruff check
+        uvx ruff check
   test:
     name: Test on node ${{ matrix.python-version }}
     runs-on: ubuntu-latest
