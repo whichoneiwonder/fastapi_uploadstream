@@ -26,7 +26,6 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP",
     "Framework :: FastAPI",
     "Framework :: AnyIO",
-    "License :: OSI Approved :: MIT License",
 ]
 keywords = [
     "fastapi",
