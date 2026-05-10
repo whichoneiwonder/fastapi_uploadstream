@@ -1,9 +1,10 @@
+name: Test and lint
 on:
   workflow_dispatch:
   push:
     branches:
     - main
-    - release/*
+    - release/*    
 
 jobs:
   lint:
