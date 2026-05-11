@@ -1,0 +1,27 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Build and deploy MkDocs site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          python-version: '3.13'
+
+      - name: Install docs dependencies
+        run: uv sync --group docs
+
+      - name: Build and deploy to GitHub Pages
+        run: uv run mkdocs gh-deploy --force

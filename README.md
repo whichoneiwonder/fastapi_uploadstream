@@ -1,6 +1,8 @@
-# FastAPI UploadStream
+# UploadStream
 
 Streaming raw request-body helpers for FastAPI that enable efficient handling of large binary uploads without multipart complexity.
+
+This is a third-party project, not created by the FastAPI team.
 
 ## Features
 

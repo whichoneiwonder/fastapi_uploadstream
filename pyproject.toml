@@ -51,6 +51,10 @@ dev = [
 standard = [
     "fastapi[standard]>=0.116.1",
 ]
+docs = [
+    "mkdocs-material>=9.7.6",
+    "mkdocstrings-python>=2.0.3",
+]
 
 [tool.ruff]
 line-length = 120
