@@ -1,5 +1,5 @@
-site_name: FastAPI UploadStream
-site_description: Streaming raw request-body helpers for FastAPI
+site_name: UploadStream
+site_description: Helpers for streaming raw request content in FastAPI
 site_url: https://whichoneiwonder.github.io/fastapi_uploadstream
 repo_url: https://github.com/whichoneiwonder/fastapi_uploadstream
 repo_name: whichoneiwonder/fastapi_uploadstream
@@ -17,14 +17,14 @@ theme:
     - content.code.annotate
   palette:
     - scheme: default
-      primary: teal
-      accent: cyan
+      primary: lime
+      accent: light blue
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: teal
-      accent: cyan
+      primary: green
+      accent: light blue
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
