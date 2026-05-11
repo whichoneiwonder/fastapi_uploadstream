@@ -19,11 +19,11 @@ pip install "fastapi[standard]"
 ## StreamBody Dependency
 
 `StreamBody` is a factory function that returns a FastAPI-compatible dependency.
-Pass it to `Depends()` in your endpoint signature to receive an [`UploadStream`][fastapi_uploadstream.UploadStream].
+Annotate your endpoint signature to receive an [`UploadStream`][fastapi_uploadstream.UploadStream].
 
 ```python
 from typing import Annotated
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
 app = FastAPI()
@@ -31,7 +31,7 @@ install_uploadstream_openapi(app)
 
 @app.post("/upload")
 async def upload(
-    body: Annotated[UploadStream, Depends(StreamBody(media_types=["application/octet-stream"]))]
+    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]
 ):
     data = await body.read()
     return {"bytes": len(data)}
@@ -130,7 +130,7 @@ If the client sends a content type not in the list, the dependency raises
 ```python
 @app.post("/upload-large")
 async def upload_large_file(
-    body: Annotated[UploadStream, Depends(StreamBody())]
+    body: Annotated[UploadStream, StreamBody()]
 ):
     bytes_received = 0
 
@@ -150,7 +150,7 @@ import httpx
 
 @app.put("/proxy-upload")
 async def proxy_upload(
-    body: Annotated[UploadStream, Depends(StreamBody(media_types=["application/octet-stream"]))]
+    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]
 ):
     async with httpx.AsyncClient() as client:
         async def stream_body():

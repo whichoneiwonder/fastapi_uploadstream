@@ -9,7 +9,7 @@ from typing import Any
 
 from anyio import EndOfStream, create_memory_object_stream, create_task_group
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.routing import APIRoute
 
 
@@ -194,7 +194,7 @@ class UploadStream:
 
 
 class StreamBodyParam:
-    """Callable dependency wrapper used with Depends(StreamBody(...))."""
+    """Callable dependency wrapper used with StreamBody(...)."""
 
     def __init__(
         self,
@@ -322,13 +322,15 @@ def StreamBody(
         deprecated,
     )
 
-    return StreamBodyParam(
-        media_types=media_types,
-        title=title,
-        description=description,
-        include_in_schema=include_in_schema,
-        json_schema_extra=json_schema_extra,
-        channel_buffer_size=channel_buffer_size,
+    return Depends(
+        StreamBodyParam(
+            media_types=media_types,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+            json_schema_extra=json_schema_extra,
+            channel_buffer_size=channel_buffer_size,
+        )
     )
 
 

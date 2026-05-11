@@ -4,7 +4,7 @@ from typing import Annotated
 
 import anyio
 import pytest
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
@@ -24,11 +24,9 @@ def _build_runtime_app(*, include_in_schema: bool = True) -> FastAPI:
     async def upload_binary(
         body_content: Annotated[
             UploadStream,
-            Depends(
-                StreamBody(
-                    media_types=["application/octet-stream", "text/plain"],
-                    include_in_schema=include_in_schema,
-                )
+            StreamBody(
+                media_types=["application/octet-stream", "text/plain"],
+                include_in_schema=include_in_schema,
             ),
         ],
     ) -> dict[str, object]:
@@ -127,11 +125,9 @@ def test_openapi_applies_json_schema_extra_to_binary_schema() -> None:
     async def upload_custom(
         body_content: Annotated[
             UploadStream,
-            Depends(
-                StreamBody(
-                    media_types="application/octet-stream",
-                    json_schema_extra={"maxLength": 1024},
-                )
+            StreamBody(
+                media_types="application/octet-stream",
+                json_schema_extra={"maxLength": 1024},
             ),
         ],
     ) -> dict[str, int]:
@@ -157,7 +153,7 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
     async def upload_binary(
         body_content: Annotated[
             UploadStream,
-            Depends(StreamBody(media_types="application/octet-stream")),
+            StreamBody(media_types="application/octet-stream"),
         ],
     ) -> dict[str, str]:
         first = await body_content.read(3)
@@ -240,7 +236,7 @@ async def test_streambody_starts_before_httpx_streaming_upload_finishes() -> Non
     async def upload_binary(
         body_content: Annotated[
             UploadStream,
-            Depends(StreamBody(media_types="application/octet-stream")),
+            StreamBody(media_types="application/octet-stream"),
         ],
     ) -> dict[str, str]:
         first = await body_content.read(3)

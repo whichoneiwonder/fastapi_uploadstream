@@ -23,7 +23,7 @@ pip install fastapi_uploadstream
 
 ```python
 from typing import Annotated
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi_uploadstream import UploadStream, StreamBody, install_uploadstream_openapi
 
 app = FastAPI()
@@ -33,11 +33,9 @@ install_uploadstream_openapi(app)
 async def upload_file(
     body_content: Annotated[
         UploadStream,
-        Depends(
             StreamBody(
                 media_types=["application/octet-stream"],
                 title="File upload",
-            )
         ),
     ],
 ):
@@ -70,7 +68,7 @@ Once received, you interact with the stream through `UploadStream`:
 ```python
 @app.post("/upload")
 async def handle_upload(
-    body: Annotated[UploadStream, Depends(StreamBody(media_types=["*/*"]))]
+    body: Annotated[UploadStream, StreamBody(media_types=["*/*"])]
 ):
     # Access file metadata
     print(f"Size: {body.size}")  # From Content-Length header
@@ -119,7 +117,7 @@ This adds proper OpenAPI definitions for binary request bodies on your streaming
 async def upload_large_file(
     body: Annotated[
         UploadStream,
-        Depends(StreamBody())
+        StreamBody()
     ]
 ):
     bytes_received = 0

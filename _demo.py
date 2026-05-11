@@ -14,7 +14,7 @@
 
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
@@ -30,15 +30,29 @@ app = FastAPI()
 install_uploadstream_openapi(app)
 
 
+@app.post("/image-or-text", description="Endpoint that accepts either image/jpeg or text/plain content types")
+async def upload_image_or_text(
+    body_content: Annotated[
+        UploadStream,
+        StreamBody(
+            media_types=["image/jpeg", "text/plain"],
+            title="body content",
+        ),
+    ],
+) -> DemoResponse:
+    return DemoResponse(
+        message="Item created",
+        content_type=body_content.content_type or "",
+        body=(await body_content.read(1024)).hex(),
+    )
+
+
 @app.post("/binary")
 async def upload_binary_content(
     body_content: Annotated[
         UploadStream,
-        Depends(
-            StreamBody(
-                media_types=["application/octet-stream", "text/plain"],
-                title="body content",
-            )
+        StreamBody(
+            title="body content",
         ),
     ],
 ) -> DemoResponse:
