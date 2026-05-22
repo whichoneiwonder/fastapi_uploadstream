@@ -83,6 +83,23 @@ else:
         )
 
 
+def test_demo() -> None:
+    # This test just exists to make sure the example code in the README actually works
+    # and is type correct. It doesn't need to assert anything, if it runs without error
+    # then the example code is working as intended.
+    from fastapi import testclient
+
+    client = testclient.TestClient(app)
+    response = client.post(
+        "/binary",
+        content=b"hello world",
+        headers={"Content-Type": "text/plain"},
+    )
+    if not response.status_code == 200:
+        raise Exception(f"Expected status code 200, got {response.status_code}")
+    print("Ok")  # noqa: T201
+
+
 if __name__ == "__main__":
     import uvicorn
 
