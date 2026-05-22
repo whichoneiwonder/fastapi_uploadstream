@@ -23,13 +23,13 @@ jobs:
 
       - name: Build release distributions
         run: |
-          if [ -d "dist" ]; then rm -rf dist; fi ;
+          if [ -d "dist" ]; then rm -rf dist; fi
           python -m pip install build
           python -m build
           python -m pip install dist/fastapi_uploadstream-*.whl
           python -c "import fastapi_uploadstream"
-          python -m pip install httpx
-          python -c "from _demo import test_demo; test_demo()"
+          python -m pip install httpx # to enable test-client in demo
+          python -c "from _demo import run_demo; run_demo()"
 
       - name: Upload distributions
         uses: actions/upload-artifact@v7
