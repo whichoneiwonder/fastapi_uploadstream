@@ -8,6 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+.python-version
+
 
 # MkDocs generated site
 site/

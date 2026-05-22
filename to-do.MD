@@ -7,7 +7,7 @@
 - [x] Remove `uvicorn[standard]` from runtime dependencies in `pyproject.toml`.
   - Move it to a dev/demo dependency group instead.
 - [x] Add `anyio` as a direct runtime dependency, since the package imports it directly.
-- [ ] Revisit `requires-python`.
+- [x] Revisit `requires-python`.
   - Test whether the library works on Python 3.10+ or 3.11+.
   - Lower the minimum supported version if the test matrix passes.
 - [x] Add/complete package metadata in `pyproject.toml`.
@@ -74,7 +74,8 @@
   - 3.11
   - 3.12
   - 3.13
-- [ ] Test dependencies at both minimum and latest supported versions.
+  - 3.14
+- [x] Test dependencies at both minimum and latest supported versions.
   - FastAPI: min/latest
   - anyio: min/latest if directly bounded
 - [x] Decide whether trio is supported.
@@ -84,9 +85,9 @@
   - Build wheel and sdist
   - Install built artifact
   - Import `fastapi_uploadstream`
-- [ ] Add a README example smoke test.
+- [x] Add a README example smoke test.
 
 ## Release readiness
-- [ ] Confirm import/install path works cleanly from a fresh virtual environment.
+- [x] Confirm import/install path works cleanly from a fresh virtual environment.
 - [ ] Confirm README installation and usage examples still match the released API.
 - [ ] Tag the first release only after the compatibility matrix and packaging checks pass.
