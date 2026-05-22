@@ -81,7 +81,7 @@
 - [x] Decide whether trio is supported.
   - If yes, add tests for `anyio_backend = "trio"`. [x]
   - ~~If no, document asyncio-only support.~~
-- [ ] Add a package build smoke test.
+- [x] Add a package build smoke test.
   - Build wheel and sdist
   - Install built artifact
   - Import `fastapi_uploadstream`
