@@ -6,9 +6,10 @@ import pytest
 from anyio import create_memory_object_stream
 from starlette.requests import Request
 
-from fastapi_uploadstream import UploadStream
-from fastapi_uploadstream import _media_type_matches  # type: ignore[attr-defined]
-
+from fastapi_uploadstream import (
+    UploadStream,
+    _media_type_matches,  # type: ignore[attr-defined]
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
