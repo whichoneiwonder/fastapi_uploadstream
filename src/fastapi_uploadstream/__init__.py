@@ -13,6 +13,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.params import File as FileFieldInfo
 from fastapi.params import Form as FormFieldInfo
 from fastapi.routing import APIRoute
+from starlette.requests import ClientDisconnect
 
 
 def size_from_request(request: Request) -> int | None:
@@ -260,9 +261,12 @@ class StreamBodyParam:
             sender: The send stream to forward chunks to.
         """
         async with sender:
-            async for chunk in request.stream():
-                if chunk:
-                    await sender.send(chunk)
+            try:
+                async for chunk in request.stream():
+                    if chunk:
+                        await sender.send(chunk)
+            except ClientDisconnect:
+                return
 
     def _validate_content_type(self, request: Request) -> None:
         """Validate that the request content type matches allowed media types.

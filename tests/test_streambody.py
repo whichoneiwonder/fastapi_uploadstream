@@ -224,6 +224,73 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
 
 
 @pytest.mark.anyio
+async def test_streambody_treats_client_disconnect_as_end_of_stream() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/binary")
+    async def upload_binary(
+        body_content: Annotated[
+            UploadStream,
+            StreamBody(media_types="application/octet-stream"),
+        ],
+    ) -> dict[str, str]:
+        first = await body_content.read(3)
+        rest = await body_content.read()
+        return {
+            "first": first.decode("ascii"),
+            "rest": rest.decode("ascii"),
+        }
+
+    receive_call_count = 0
+
+    async def receive() -> ASGIMessage:
+        nonlocal receive_call_count
+        receive_call_count += 1
+
+        if receive_call_count == 1:
+            return HTTPRequestMessage(type="http.request", body=b"abc", more_body=True)
+
+        return HTTPDisconnectMessage(type="http.disconnect")
+
+    sent_messages: list[ASGIMessage] = []
+
+    async def send(message: ASGIMessage) -> None:
+        sent_messages.append(message)
+
+    scope: HTTPScope = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.3"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/binary",
+        "raw_path": b"/binary",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [
+            (b"host", b"testserver"),
+            (b"content-type", b"application/octet-stream"),
+            (b"content-length", b"6"),
+        ],
+        "client": ("127.0.0.1", 1234),
+        "server": ("testserver", 80),
+    }
+
+    await app(scope, receive, send)  # type: ignore
+
+    status = next(
+        message["status"]  # type: ignore
+        for message in sent_messages
+        if message["type"] == "http.response.start"
+    )
+    body = b"".join(message.get("body", b"") for message in sent_messages if message["type"] == "http.response.body")
+
+    assert status == 200
+    assert json.loads(body) == {"first": "abc", "rest": ""}
+
+
+@pytest.mark.anyio
 async def test_streambody_starts_before_httpx_streaming_upload_finishes() -> None:
     first_chunk_was_read = anyio.Event()
     release_second_chunk = anyio.Event()
