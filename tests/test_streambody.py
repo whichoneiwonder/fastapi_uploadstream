@@ -4,7 +4,7 @@ from typing import Annotated
 
 import anyio
 import pytest
-from fastapi import FastAPI
+from fastapi import Body, FastAPI, Form, UploadFile
 from httpx import ASGITransport, AsyncClient
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
@@ -284,3 +284,197 @@ async def test_streambody_starts_before_httpx_streaming_upload_finishes() -> Non
                 await response_completed.wait()
 
     assert response_payload == {"first": "abc", "rest": "def"}
+
+
+# ---------------------------------------------------------------------------
+# OpenAPI annotation field tests (title, description, example, examples, deprecated)
+# ---------------------------------------------------------------------------
+
+
+def _build_annotation_app(
+    *,
+    title: str | None = None,
+    description: str | None = None,
+    example: object | None = None,
+    examples: list[object] | None = None,
+    openapi_examples: dict[str, object] | None = None,
+    deprecated: bool | str | None = None,
+    include_in_schema: bool = True,
+    json_schema_extra: dict[str, object] | None = None,
+) -> FastAPI:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/upload")
+    async def upload(
+        body: Annotated[
+            UploadStream,
+            StreamBody(
+                title=title,
+                description=description,
+                example=example,
+                examples=examples,
+                openapi_examples=openapi_examples,
+                deprecated=deprecated,
+                include_in_schema=include_in_schema,
+                json_schema_extra=json_schema_extra,
+            ),
+        ],
+    ) -> None: ...
+
+    return app
+
+
+def test_openapi_applies_title_to_schema() -> None:
+    app = _build_annotation_app(title="Binary Payload")
+    schema = app.openapi()
+
+    binary_schema = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]["schema"]
+    assert binary_schema["title"] == "Binary Payload"
+
+
+def test_openapi_applies_description_to_request_body() -> None:
+    app = _build_annotation_app(description="The binary file to upload")
+    schema = app.openapi()
+
+    request_body = schema["paths"]["/upload"]["post"]["requestBody"]
+    assert request_body["description"] == "The binary file to upload"
+
+
+def test_openapi_applies_example_to_media_type() -> None:
+    app = _build_annotation_app(example="sample binary content")
+    schema = app.openapi()
+
+    media_type_obj = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]
+    assert media_type_obj["example"] == "sample binary content"
+
+
+def test_openapi_applies_openapi_examples_to_media_type() -> None:
+    named_examples = {
+        "small": {"summary": "Small file", "value": "abc"},
+        "large": {"summary": "Large file", "value": "x" * 100},
+    }
+    app = _build_annotation_app(openapi_examples=named_examples)
+    schema = app.openapi()
+
+    media_type_obj = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]
+    assert media_type_obj["examples"] == named_examples
+
+
+def test_openapi_applies_examples_list_as_numbered_map() -> None:
+    app = _build_annotation_app(examples=["first example", "second example"])
+    schema = app.openapi()
+
+    media_type_obj = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]
+    assert media_type_obj["examples"] == {
+        "example-0": {"value": "first example"},
+        "example-1": {"value": "second example"},
+    }
+
+
+def test_openapi_applies_deprecated_to_schema() -> None:
+    app = _build_annotation_app(deprecated=True)
+    schema = app.openapi()
+
+    binary_schema = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]["schema"]
+    assert binary_schema["deprecated"] is True
+
+
+def test_openapi_openapi_examples_takes_precedence_over_examples_list() -> None:
+    named_examples = {"main": {"summary": "Main", "value": "data"}}
+    app = _build_annotation_app(
+        examples=["ignored example"],
+        openapi_examples=named_examples,
+    )
+    schema = app.openapi()
+
+    media_type_obj = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]
+    assert media_type_obj["examples"] == named_examples
+
+
+def test_openapi_applies_json_schema_extra_via_annotation() -> None:
+    app = _build_annotation_app(json_schema_extra={"maxLength": 512, "x-custom": "value"})
+    schema = app.openapi()
+
+    binary_schema = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]["schema"]
+    assert binary_schema["type"] == "string"
+    assert binary_schema["format"] == "binary"
+    assert binary_schema["maxLength"] == 512
+    assert binary_schema["x-custom"] == "value"
+
+
+def test_openapi_include_in_schema_false_hides_request_body() -> None:
+    app = _build_annotation_app(include_in_schema=False)
+    schema = app.openapi()
+
+    operation = schema["paths"]["/upload"]["post"]
+    assert "requestBody" not in operation
+
+
+# ---------------------------------------------------------------------------
+# Conflict detection: StreamBody must not coexist with Body / Form / UploadFile
+# ---------------------------------------------------------------------------
+
+
+def test_openapi_raises_on_streambody_mixed_with_body_param() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/mixed")
+    async def ep(
+        stream: Annotated[UploadStream, StreamBody()],
+        name: Annotated[str, Body()],
+    ) -> None: ...
+
+    with pytest.raises(ValueError, match="StreamBody.*Body|Body.*StreamBody"):
+        app.openapi()
+
+
+def test_openapi_raises_on_streambody_mixed_with_uploadfile() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/mixed")
+    async def ep(
+        stream: Annotated[UploadStream, StreamBody()],
+        file: UploadFile,
+    ) -> None: ...
+
+    with pytest.raises(ValueError, match="StreamBody.*UploadFile|UploadFile.*StreamBody"):
+        app.openapi()
+
+
+def test_openapi_raises_on_streambody_mixed_with_form() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/mixed")
+    async def ep(
+        stream: Annotated[UploadStream, StreamBody()],
+        tag: Annotated[str, Form()],
+    ) -> None: ...
+
+    with pytest.raises(ValueError, match="StreamBody.*Form|Form.*StreamBody"):
+        app.openapi()
+
+
+def test_openapi_no_error_when_streambody_used_alone() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/solo")
+    async def ep(stream: Annotated[UploadStream, StreamBody()]) -> None: ...
+
+    schema = app.openapi()
+    assert "requestBody" in schema["paths"]["/solo"]["post"]
+
+
+def test_openapi_no_error_when_body_used_without_streambody() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/solo")
+    async def ep(name: Annotated[str, Body()]) -> None: ...
+
+    schema = app.openapi()
+    assert "requestBody" in schema["paths"]["/solo"]["post"]
