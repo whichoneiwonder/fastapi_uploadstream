@@ -384,7 +384,7 @@ def _check_streambody_conflicts(route: APIRoute) -> None:
 
     def _param_kind(field_info: object) -> str:
         if isinstance(field_info, FileFieldInfo):
-            return "UploadFile"
+            return "File"
         if isinstance(field_info, FormFieldInfo):
             return "Form"
         return "Body"
@@ -392,7 +392,7 @@ def _check_streambody_conflicts(route: APIRoute) -> None:
     descriptions = [f"{p.name} ({_param_kind(p.field_info)})" for p in conflicting]
     methods = ", ".join(route.methods or ["?"])
     raise ValueError(
-        f"StreamBody cannot be combined with Body, Form, or UploadFile parameters on the "
+        f"StreamBody cannot be combined with Body, Form, or File/UploadFile parameters on the "
         f"same endpoint ({methods} {route.path_format}). "
         f"Conflicting params: {', '.join(descriptions)}. "
         f"Use StreamBody exclusively for request body handling on this endpoint."
