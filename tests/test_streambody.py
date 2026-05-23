@@ -217,7 +217,12 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
         for message in sent_messages
         if message["type"] == "http.response.start"
     )
-    body = b"".join(message.get("body", b"") for message in sent_messages if message["type"] == "http.response.body")
+    response_body_messages = (
+        message.get("body", b"")
+        for message in sent_messages
+        if message["type"] == "http.response.body"
+    )
+    body = b"".join(response_body_messages)
 
     assert status == 200
     assert json.loads(body) == {"first": "abc", "rest": "def"}
