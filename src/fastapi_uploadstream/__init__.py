@@ -300,12 +300,12 @@ class StreamBodyParam:
 
             media_type_obj: dict[str, Any] = {"schema": schema}
 
-            if self.openapi_examples:
+            if self.openapi_examples is not None:
                 media_type_obj["examples"] = self.openapi_examples
-            elif self.examples:
+            elif self.examples is not None and self.examples:
                 media_type_obj["examples"] = {f"example-{i}": {"value": v} for i, v in enumerate(self.examples)}
 
-            if self.example is not None:
+            if self.example is not None and "examples" not in media_type_obj:
                 media_type_obj["example"] = self.example
 
             content[media_type] = media_type_obj
