@@ -42,21 +42,21 @@
 - [ ] Either implement support for those parameters in OpenAPI generation or remove them from the public API.
 
 ## Tests to add
-- [ ] Add `UploadStream.read()` edge-case tests.
+git - [x] Add `UploadStream.read()` edge-case tests.
   - `read(0)` returns `b""`
   - `read(-2)` raises `ValueError`
   - repeated `read()` after EOF returns `b""`
   - `read()` after `close()` returns `b""`
-- [ ] Add `seek()` tests.
+- [x] Add `seek()` tests.
   - `seek(0)` no-op
   - `seek(n)` skips bytes correctly
   - seeking past EOF is harmless
   - `seek(-1)` raises `ValueError`
-- [ ] Add `iter_chunks()` tests.
+- [x] Add `iter_chunks()` tests.
   - chunk boundaries
   - draining remaining buffered data
   - invalid `chunk_size <= 0` raises `ValueError`
-- [ ] Add direct media-type matching tests.
+- [x] Add direct media-type matching tests.
   - exact matches
   - wildcard subtype matches like `application/*`
   - `*/*`
@@ -81,7 +81,7 @@
 - [x] Decide whether trio is supported.
   - If yes, add tests for `anyio_backend = "trio"`. [x]
   - ~~If no, document asyncio-only support.~~
-- [ ] Add a package build smoke test.
+- [x] Add a package build smoke test.
   - Build wheel and sdist
   - Install built artifact
   - Import `fastapi_uploadstream`
