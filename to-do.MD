@@ -42,7 +42,7 @@
 - [ ] Either implement support for those parameters in OpenAPI generation or remove them from the public API.
 
 ## Tests to add
-- [x] Add `UploadStream.read()` edge-case tests.
+git - [x] Add `UploadStream.read()` edge-case tests.
   - `read(0)` returns `b""`
   - `read(-2)` raises `ValueError`
   - repeated `read()` after EOF returns `b""`
