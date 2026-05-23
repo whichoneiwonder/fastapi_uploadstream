@@ -1,6 +1,6 @@
 import json
 from collections.abc import AsyncIterator
-from typing import Annotated
+from typing import Annotated, Any
 
 import anyio
 import pytest
@@ -297,7 +297,7 @@ def _build_annotation_app(
     description: str | None = None,
     example: object | None = None,
     examples: list[object] | None = None,
-    openapi_examples: dict[str, object] | None = None,
+    openapi_examples: dict[str, Any] | None = None,
     deprecated: bool | str | None = None,
     include_in_schema: bool = True,
     json_schema_extra: dict[str, object] | None = None,
@@ -426,7 +426,7 @@ def test_openapi_raises_on_streambody_mixed_with_body_param() -> None:
         name: Annotated[str, Body()],
     ) -> None: ...
 
-    with pytest.raises(ValueError, match="StreamBody.*Body|Body.*StreamBody"):
+    with pytest.raises(ValueError, match=r"StreamBody.*Body|Body.*StreamBody"):
         app.openapi()
 
 
@@ -440,7 +440,7 @@ def test_openapi_raises_on_streambody_mixed_with_uploadfile() -> None:
         file: UploadFile,
     ) -> None: ...
 
-    with pytest.raises(ValueError, match="StreamBody.*UploadFile|UploadFile.*StreamBody"):
+    with pytest.raises(ValueError, match=r"StreamBody.*UploadFile|UploadFile.*StreamBody"):
         app.openapi()
 
 
@@ -454,7 +454,7 @@ def test_openapi_raises_on_streambody_mixed_with_form() -> None:
         tag: Annotated[str, Form()],
     ) -> None: ...
 
-    with pytest.raises(ValueError, match="StreamBody.*Form|Form.*StreamBody"):
+    with pytest.raises(ValueError, match=r"StreamBody.*Form|Form.*StreamBody"):
         app.openapi()
 
 
@@ -478,3 +478,17 @@ def test_openapi_no_error_when_body_used_without_streambody() -> None:
 
     schema = app.openapi()
     assert "requestBody" in schema["paths"]["/solo"]["post"]
+
+
+def test_openapi_error_with_bytes_and_uploadstream() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/mixed")
+    async def ep(
+        stream: Annotated[UploadStream, StreamBody()],
+        data: bytes = Body(),  # noqa FAST002
+    ) -> None: ...
+
+    with pytest.raises(ValueError, match=r"StreamBody.*Body|Body.*StreamBody"):
+        app.openapi()
