@@ -10,6 +10,8 @@ from typing import Any
 from anyio import EndOfStream, create_memory_object_stream, create_task_group
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.params import File as FileFieldInfo
+from fastapi.params import Form as FormFieldInfo
 from fastapi.routing import APIRoute
 
 
@@ -202,19 +204,25 @@ class StreamBodyParam:
         media_types: str | Iterable[str] = "*/*",
         title: str | None = None,
         description: str | None = None,
+        example: object | None = None,
+        examples: list[Any] | None = None,
+        openapi_examples: dict[str, Any] | None = None,
+        deprecated: bool | str | None = None,
         include_in_schema: bool = True,
         json_schema_extra: dict[str, Any] | None = None,
         channel_buffer_size: int = 2048,
-        examples: list[Any] | None = None,
     ) -> None:
         """Capture runtime and documentation settings for a raw body dependency."""
         self.media_types = _normalize_media_types(media_types)
         self.title = title
         self.description = description
+        self.example = example
+        self.examples = examples
+        self.openapi_examples = openapi_examples
+        self.deprecated = deprecated
         self.include_in_schema = include_in_schema
         self.json_schema_extra = json_schema_extra or {}
         self.channel_buffer_size = channel_buffer_size
-        self.examples = examples
 
     async def __call__(self, request: Request) -> AsyncIterator[UploadStream]:
         """Yield a streaming file-like wrapper over the incoming request body."""
@@ -278,19 +286,29 @@ class StreamBodyParam:
 
     def openapi_request_body(self) -> dict[str, Any]:
         """Return an OpenAPI requestBody block for a binary upload."""
-        content = {
-            media_type: {
-                "schema": {
-                    "type": "string",
-                    "format": "binary",
-                }
-            }
-            for media_type in self.media_types
-        }
+        content: dict[str, Any] = {}
 
-        if self.json_schema_extra:
-            for media_content in content.values():
-                media_content["schema"].update(self.json_schema_extra)
+        for media_type in self.media_types:
+            schema: dict[str, Any] = {"type": "string", "format": "binary"}
+
+            if self.title is not None:
+                schema["title"] = self.title
+            if self.deprecated:
+                schema["deprecated"] = True
+            if self.json_schema_extra:
+                schema.update(self.json_schema_extra)
+
+            media_type_obj: dict[str, Any] = {"schema": schema}
+
+            if self.openapi_examples is not None:
+                media_type_obj["examples"] = self.openapi_examples
+            elif self.examples is not None and self.examples:
+                media_type_obj["examples"] = {f"example-{i}": {"value": v} for i, v in enumerate(self.examples)}
+
+            if self.example is not None and "examples" not in media_type_obj:
+                media_type_obj["example"] = self.example
+
+            content[media_type] = media_type_obj
 
         request_body: dict[str, Any] = {"content": content}
         if self.description is not None:
@@ -313,20 +331,15 @@ def StreamBody(
     channel_buffer_size: int = 2048,
 ) -> StreamBodyParam:
     """Create a dependency object for streamed raw body uploads."""
-    # Keep compatibility with a Body-like call signature so existing usage such as
-    # Depends(StreamBody(...)) does not need endpoint changes.
-    _ = (
-        examples,
-        example,
-        openapi_examples,
-        deprecated,
-    )
-
     return Depends(
         StreamBodyParam(
             media_types=media_types,
             title=title,
             description=description,
+            example=example,
+            examples=examples,
+            openapi_examples=openapi_examples,
+            deprecated=deprecated,
             include_in_schema=include_in_schema,
             json_schema_extra=json_schema_extra,
             channel_buffer_size=channel_buffer_size,
@@ -356,6 +369,36 @@ def install_uploadstream_openapi(app: FastAPI) -> FastAPI:
     return app
 
 
+def _check_streambody_conflicts(route: APIRoute) -> None:
+    """Raise ValueError if a StreamBody dependency coexists with Body/Form/UploadFile params.
+
+    Args:
+        route: The API route to validate.
+
+    Raises:
+        ValueError: If incompatible parameter types are mixed on the same endpoint.
+    """
+    conflicting = route.dependant.body_params
+    if not conflicting:
+        return
+
+    def _param_kind(field_info: object) -> str:
+        if isinstance(field_info, FileFieldInfo):
+            return "File"
+        if isinstance(field_info, FormFieldInfo):
+            return "Form"
+        return "Body"
+
+    descriptions = [f"{p.name} ({_param_kind(p.field_info)})" for p in conflicting]
+    methods = ", ".join(route.methods or ["?"])
+    raise ValueError(
+        f"StreamBody cannot be combined with Body, Form, or File/UploadFile parameters on the "
+        f"same endpoint ({methods} {route.path_format}). "
+        f"Conflicting params: {', '.join(descriptions)}. "
+        f"Use StreamBody exclusively for request body handling on this endpoint."
+    )
+
+
 def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> None:
     """Patch generated OpenAPI paths with binary requestBody entries.
 
@@ -376,6 +419,8 @@ def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> 
         if not stream_bodies:
             continue
 
+        _check_streambody_conflicts(route)
+
         path_item = paths.get(route.path_format)
         if not path_item:
             continue
@@ -394,7 +439,10 @@ def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> 
             content = request_body.setdefault("content", {})
 
             for stream_body in visible_stream_bodies:
-                content.update(stream_body.openapi_request_body()["content"])
+                rb = stream_body.openapi_request_body()
+                content.update(rb["content"])
+                if "description" in rb and "description" not in request_body:
+                    request_body["description"] = rb["description"]
 
 
 def _collect_streambody_dependencies(route: APIRoute) -> list[StreamBodyParam]:
