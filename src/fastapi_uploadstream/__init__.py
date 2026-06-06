@@ -5,7 +5,7 @@ OpenAPI hook that documents those dependencies as binary request bodies.
 """
 
 from collections.abc import AsyncIterator, Callable, Iterable
-from typing import Any
+from typing import Any, Literal
 
 from anyio import EndOfStream, create_memory_object_stream, create_task_group
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
@@ -81,7 +81,7 @@ class UploadStream:
     def __init__(
         self,
         request: Request,
-        receiver: MemoryObjectReceiveStream[bytes],
+        receiver: MemoryObjectReceiveStream[bytes | ClientDisconnect],
         cancel_receive: Callable[[], object],
     ) -> None:
         """Wrap the incoming request stream as a file-like binary reader."""
@@ -106,7 +106,10 @@ class UploadStream:
             return b""
 
         try:
-            return await self._receiver.receive()
+            item = await self._receiver.receive()
+            if isinstance(item, ClientDisconnect):
+                raise item
+            return item
         except EndOfStream:
             self._eof = True
             return b""
@@ -212,6 +215,7 @@ class StreamBodyParam:
         include_in_schema: bool = True,
         json_schema_extra: dict[str, Any] | None = None,
         channel_buffer_size: int = 2048,
+        client_disconnect: Literal["eof", "raise"] = "eof",
     ) -> None:
         """Capture runtime and documentation settings for a raw body dependency."""
         self.media_types = _normalize_media_types(media_types)
@@ -224,14 +228,15 @@ class StreamBodyParam:
         self.include_in_schema = include_in_schema
         self.json_schema_extra = json_schema_extra or {}
         self.channel_buffer_size = channel_buffer_size
+        self.client_disconnect = client_disconnect
 
     async def __call__(self, request: Request) -> AsyncIterator[UploadStream]:
         """Yield a streaming file-like wrapper over the incoming request body."""
         self._validate_content_type(request)
 
-        send_stream: MemoryObjectSendStream[bytes]
-        recv_stream: MemoryObjectReceiveStream[bytes]
-        send_stream, recv_stream = create_memory_object_stream[bytes](self.channel_buffer_size)
+        send_stream: MemoryObjectSendStream[bytes | ClientDisconnect]
+        recv_stream: MemoryObjectReceiveStream[bytes | ClientDisconnect]
+        send_stream, recv_stream = create_memory_object_stream[bytes | ClientDisconnect](self.channel_buffer_size)
 
         async with create_task_group() as task_group:
             upload = UploadStream(
@@ -249,7 +254,7 @@ class StreamBodyParam:
     async def _recv_from_request(
         self,
         request: Request,
-        sender: MemoryObjectSendStream[bytes],
+        sender: MemoryObjectSendStream[bytes | ClientDisconnect],
     ) -> None:
         """Pump request body chunks into the send stream.
 
@@ -266,6 +271,8 @@ class StreamBodyParam:
                     if chunk:
                         await sender.send(chunk)
             except ClientDisconnect:
+                if self.client_disconnect == "raise":
+                    await sender.send(ClientDisconnect())
                 return
 
     def _validate_content_type(self, request: Request) -> None:
@@ -333,6 +340,7 @@ def StreamBody(
     include_in_schema: bool = True,
     json_schema_extra: dict[str, Any] | None = None,
     channel_buffer_size: int = 2048,
+    client_disconnect: Literal["eof", "raise"] = "eof",
 ) -> StreamBodyParam:
     """Create a dependency object for streamed raw body uploads."""
     return Depends(
@@ -347,6 +355,7 @@ def StreamBody(
             include_in_schema=include_in_schema,
             json_schema_extra=json_schema_extra,
             channel_buffer_size=channel_buffer_size,
+            client_disconnect=client_disconnect,
         )
     )
 
