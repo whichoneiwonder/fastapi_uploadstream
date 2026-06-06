@@ -1,6 +1,6 @@
 import json
 from collections.abc import AsyncIterator
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 import anyio
 import pytest
@@ -9,7 +9,14 @@ from httpx import ASGITransport, AsyncClient
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
-from .types import ASGIMessage, HTTPDisconnectMessage, HTTPRequestMessage, HTTPScope
+from .types import (
+    ASGIMessage,
+    HTTPDisconnectMessage,
+    HTTPRequestMessage,
+    HTTPResponseBodyMessage,
+    HTTPResponseStartMessage,
+    HTTPScope,
+)
 
 # @pytest.fixture
 pytest_mark = pytest.mark.parametrize("backend", ["asyncio", "trio"])
@@ -213,12 +220,12 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
         release_second_chunk.set()
 
     status = next(
-        message["status"]  # type: ignore
+        cast(HTTPResponseStartMessage, message)["status"]
         for message in sent_messages
         if message["type"] == "http.response.start"
     )
     response_body_messages = (
-        message.get("body", b"")
+        cast(HTTPResponseBodyMessage, message).get("body", b"")
         for message in sent_messages
         if message["type"] == "http.response.body"
     )
