@@ -368,6 +368,7 @@ async def test_streambody_can_reraise_client_disconnect_to_endpoint() -> None:
 
     assert status == 200
     assert json.loads(body) == {"first": "abc", "rest": "<disconnect>"}
+    assert receive_call_count == 2
 
 
 @pytest.mark.anyio
