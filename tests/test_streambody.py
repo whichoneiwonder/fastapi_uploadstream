@@ -245,7 +245,7 @@ async def test_streambody_treats_client_disconnect_as_end_of_stream() -> None:
     async def upload_binary(
         body_content: Annotated[
             UploadStream,
-            StreamBody(media_types="application/octet-stream"),
+            StreamBody(media_types="application/octet-stream", client_disconnect="eof"),
         ],
     ) -> dict[str, str]:
         first = await body_content.read(3)
@@ -304,7 +304,7 @@ async def test_streambody_treats_client_disconnect_as_end_of_stream() -> None:
 
 
 @pytest.mark.anyio
-async def test_streambody_can_reraise_client_disconnect_to_endpoint() -> None:
+async def test_streambody_raises_client_disconnect_by_default() -> None:
     app = FastAPI()
     install_uploadstream_openapi(app)
 
@@ -312,7 +312,7 @@ async def test_streambody_can_reraise_client_disconnect_to_endpoint() -> None:
     async def upload_binary(
         body_content: Annotated[
             UploadStream,
-            StreamBody(media_types="application/octet-stream", client_disconnect="raise"),
+            StreamBody(media_types="application/octet-stream"),
         ],
     ) -> dict[str, str]:
         first = await body_content.read(3)

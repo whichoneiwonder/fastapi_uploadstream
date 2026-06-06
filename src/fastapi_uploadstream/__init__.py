@@ -215,7 +215,7 @@ class StreamBodyParam:
         include_in_schema: bool = True,
         json_schema_extra: dict[str, Any] | None = None,
         channel_buffer_size: int = 2048,
-        client_disconnect: Literal["eof", "raise"] = "eof",
+        client_disconnect: Literal["eof", "raise"] = "raise",
     ) -> None:
         """Capture runtime and documentation settings for a raw body dependency."""
         self.media_types = _normalize_media_types(media_types)
@@ -340,7 +340,7 @@ def StreamBody(
     include_in_schema: bool = True,
     json_schema_extra: dict[str, Any] | None = None,
     channel_buffer_size: int = 2048,
-    client_disconnect: Literal["eof", "raise"] = "eof",
+    client_disconnect: Literal["eof", "raise"] = "raise",
 ) -> StreamBodyParam:
     """Create a dependency object for streamed raw body uploads."""
     return Depends(
