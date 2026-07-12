@@ -10,6 +10,7 @@ from typing import Any
 from anyio import EndOfStream, create_memory_object_stream, create_task_group
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.params import Body as BodyFieldInfo
 from fastapi.params import File as FileFieldInfo
 from fastapi.params import Form as FormFieldInfo
 from fastapi.routing import APIRoute
@@ -196,7 +197,7 @@ class UploadStream:
         await self._receiver.aclose()
 
 
-class StreamBodyParam:
+class StreamBodyParam(BodyFieldInfo):
     """Callable dependency wrapper used with StreamBody(...)."""
 
     def __init__(
@@ -205,7 +206,6 @@ class StreamBodyParam:
         media_types: str | Iterable[str] = "*/*",
         title: str | None = None,
         description: str | None = None,
-        example: object | None = None,
         examples: list[Any] | None = None,
         openapi_examples: dict[str, Any] | None = None,
         deprecated: bool | str | None = None,
@@ -215,15 +215,16 @@ class StreamBodyParam:
     ) -> None:
         """Capture runtime and documentation settings for a raw body dependency."""
         self.media_types = _normalize_media_types(media_types)
-        self.title = title
-        self.description = description
-        self.example = example
-        self.examples = examples
-        self.openapi_examples = openapi_examples
-        self.deprecated = deprecated
-        self.include_in_schema = include_in_schema
-        self.json_schema_extra = json_schema_extra or {}
         self.channel_buffer_size = channel_buffer_size
+        super().__init__(
+            title=title,
+            description=description,
+            examples=examples,
+            openapi_examples=openapi_examples,
+            deprecated=deprecated,
+            include_in_schema=include_in_schema,
+            json_schema_extra=json_schema_extra or {},
+        )
 
     async def __call__(self, request: Request) -> AsyncIterator[UploadStream]:
         """Yield a streaming file-like wrapper over the incoming request body."""
@@ -300,7 +301,7 @@ class StreamBodyParam:
             if self.deprecated:
                 schema["deprecated"] = True
             if self.json_schema_extra:
-                schema.update(self.json_schema_extra)
+                schema.update(dict(self.json_schema_extra))
 
             media_type_obj: dict[str, Any] = {"schema": schema}
 
@@ -327,7 +328,6 @@ def StreamBody(
     title: str | None = None,
     description: str | None = None,
     examples: list[Any] | None = None,
-    example: object | None = None,
     openapi_examples: dict[str, Any] | None = None,
     deprecated: bool | str | None = None,
     include_in_schema: bool = True,
@@ -340,7 +340,6 @@ def StreamBody(
             media_types=media_types,
             title=title,
             description=description,
-            example=example,
             examples=examples,
             openapi_examples=openapi_examples,
             deprecated=deprecated,
@@ -373,7 +372,7 @@ def install_uploadstream_openapi(app: FastAPI) -> FastAPI:
     return app
 
 
-def _check_streambody_conflicts(route: APIRoute) -> None:
+def _check_streambody_conflicts(route: APIRoute, stream_bodies: list[StreamBodyParam]) -> None:
     """Raise ValueError if a StreamBody dependency coexists with Body/Form/UploadFile params.
 
     Args:
@@ -382,6 +381,12 @@ def _check_streambody_conflicts(route: APIRoute) -> None:
     Raises:
         ValueError: If incompatible parameter types are mixed on the same endpoint.
     """
+    if len(stream_bodies) > 1:
+        raise ValueError(
+            f"Multiple StreamBody dependencies found on route {route.path_format}. "
+            f"Only one StreamBodyParam is allowed per endpoint to avoid OpenAPI conflicts."
+        )
+
     conflicting = route.dependant.body_params
     if not conflicting:
         return
@@ -391,6 +396,8 @@ def _check_streambody_conflicts(route: APIRoute) -> None:
             return "File"
         if isinstance(field_info, FormFieldInfo):
             return "Form"
+        if isinstance(field_info, StreamBodyParam):
+            return "StreamBody"
         return "Body"
 
     descriptions = [f"{p.name} ({_param_kind(p.field_info)})" for p in conflicting]
@@ -422,8 +429,7 @@ def _inject_streambody_openapi(app: FastAPI, openapi_schema: dict[str, Any]) -> 
         stream_bodies = _collect_streambody_dependencies(route)
         if not stream_bodies:
             continue
-
-        _check_streambody_conflicts(route)
+        _check_streambody_conflicts(route, stream_bodies)
 
         path_item = paths.get(route.path_format)
         if not path_item:

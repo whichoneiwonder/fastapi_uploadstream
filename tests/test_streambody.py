@@ -391,7 +391,6 @@ def _build_annotation_app(
             StreamBody(
                 title=title,
                 description=description,
-                example=example,
                 examples=examples,
                 openapi_examples=openapi_examples,
                 deprecated=deprecated,
@@ -421,11 +420,11 @@ def test_openapi_applies_description_to_request_body() -> None:
 
 
 def test_openapi_applies_example_to_media_type() -> None:
-    app = _build_annotation_app(example="sample binary content")
+    app = _build_annotation_app(examples=["sample binary content"])
     schema = app.openapi()
 
     media_type_obj = schema["paths"]["/upload"]["post"]["requestBody"]["content"]["*/*"]
-    assert media_type_obj["example"] == "sample binary content"
+    assert next(iter(media_type_obj["examples"].values()))["value"] == "sample binary content"
 
 
 def test_openapi_applies_openapi_examples_to_media_type() -> None:
