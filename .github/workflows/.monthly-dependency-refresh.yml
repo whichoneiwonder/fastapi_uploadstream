@@ -1,10 +1,10 @@
-name: Monthly dependency refresh
+name: Dependency refresh - must set github to allow actions to edit PRs
 on:
-  schedule:
-    # 04:00 UTC on the first day of every month
-    - cron: "0 4 1 * *"
+  # schedule:
+  #   # 04:00 UTC on the first day of every month
+  #   - cron: "0 4 1 * *"
   workflow_dispatch:
-
+    
 permissions:
   contents: write
   pull-requests: write
