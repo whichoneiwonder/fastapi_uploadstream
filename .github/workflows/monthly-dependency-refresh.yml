@@ -1,0 +1,68 @@
+name: Monthly dependency refresh
+on:
+  schedule:
+    # 04:00 UTC on the first day of every month
+    - cron: "0 4 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh-lock:
+    name: Refresh lock, audit, and validate
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          python-version: "3.13"
+
+      - name: Upgrade lockfile only
+        run: uv lock --upgrade
+
+      - name: Sync all dependency groups from lock
+        run: uv sync --all-groups
+
+      - name: Audit resolved dependencies
+        run: |
+          uv export --all-groups --format requirements-txt > requirements-audit.txt
+          uvx pip-audit -r requirements-audit.txt
+
+      - name: Run test suite
+        run: uv run --frozen pytest
+
+      - name: Lint
+        run: |
+          uvx ruff format --check
+          uvx ruff check
+
+      - name: Create dependency refresh PR
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "chore(lock): monthly uv.lock refresh"
+          title: "chore(lock): monthly dependency refresh"
+          body: |
+            Automated monthly dependency refresh.
+
+            Scope:
+            - Updated lockfile with `uv lock --upgrade`
+            - Installed from lock with all groups
+            - Audited dependencies via `pip-audit`
+            - Ran tests and lint checks
+
+            Note:
+            - This workflow intentionally avoids edits to project dependency constraints.
+          base: main
+          branch: "ci/monthly-dependency-refresh"
+          delete-branch: true
+          labels: |
+            dependencies
+            maintenance
+          add-paths: |
+            uv.lock
