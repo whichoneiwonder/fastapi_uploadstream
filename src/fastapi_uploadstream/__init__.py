@@ -214,7 +214,7 @@ class StreamBodyParam(BodyFieldInfo):
         openapi_examples: dict[str, Any] | None = None,
         deprecated: bool | str | None = None,
         include_in_schema: bool = True,
-        json_schema_extra: dict[str, Any] | None = None,
+        json_schema_extra: dict[str, Any] | Callable[[dict[str, Any]], None] | None = None,
         channel_buffer_size: int = 2048,
         client_disconnect: Literal["eof", "raise"] = "raise",
     ) -> None:
@@ -272,9 +272,9 @@ class StreamBodyParam(BodyFieldInfo):
                 async for chunk in request.stream():
                     if chunk:
                         await sender.send(chunk)
-            except ClientDisconnect as exc:
+            except ClientDisconnect:
                 if self.client_disconnect == "raise":
-                    await sender.send(exc)
+                    await sender.send(ClientDisconnect())
                 return
 
     def _validate_content_type(self, request: Request) -> None:
@@ -311,7 +311,7 @@ class StreamBodyParam(BodyFieldInfo):
             if isinstance(self.json_schema_extra, Callable):
                 warnings.warn(
                     message=UserWarning(
-                        "json_schema_extra callable overrides StreamBody annotations;"
+                        "json_schema_extra callable overrides StreamBody annotations; "
                         "use a dict instead for compatibility"
                     ),
                     stacklevel=2,
@@ -350,7 +350,7 @@ def StreamBody(
     openapi_examples: dict[str, Any] | None = None,
     deprecated: bool | str | None = None,
     include_in_schema: bool = True,
-    json_schema_extra: dict[str, Any] | None = None,
+    json_schema_extra: dict[str, Any] | Callable[[dict[str, Any]], None] | None = None,
     channel_buffer_size: int = 2048,
     client_disconnect: Literal["eof", "raise"] = "raise",
 ) -> StreamBodyParam:
