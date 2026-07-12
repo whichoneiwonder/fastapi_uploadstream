@@ -31,9 +31,7 @@ jobs:
 
       - name: Audit resolved dependencies
         run: |
-          uv export --all-groups --format requirements-txt > requirements-audit.txt
-          uvx pip-audit -r requirements-audit.txt
-
+            uv audit --locked
       - name: Run test suite
         run: uv run --frozen pytest
 
