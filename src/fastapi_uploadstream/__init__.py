@@ -272,9 +272,9 @@ class StreamBodyParam(BodyFieldInfo):
                 async for chunk in request.stream():
                     if chunk:
                         await sender.send(chunk)
-            except ClientDisconnect:
+            except ClientDisconnect as exc:
                 if self.client_disconnect == "raise":
-                    await sender.send(ClientDisconnect())
+                    await sender.send(exc)
                 return
 
     def _validate_content_type(self, request: Request) -> None:
