@@ -4,6 +4,7 @@ This package provides a dependency-first runtime wrapper plus an optional
 OpenAPI hook that documents those dependencies as binary request bodies.
 """
 
+import warnings
 from collections.abc import AsyncIterator, Callable, Iterable
 from typing import Any
 
@@ -300,7 +301,16 @@ class StreamBodyParam(BodyFieldInfo):
                 schema["title"] = self.title
             if self.deprecated:
                 schema["deprecated"] = True
-            if self.json_schema_extra:
+            if isinstance(self.json_schema_extra, Callable):
+                warnings.warn(
+                    message=UserWarning(
+                        "json_schema_extra callable overrides StreamBody annotations;"
+                        "use a dict instead for compatibility"
+                    ),
+                    stacklevel=2,
+                )
+                self.json_schema_extra(schema)
+            elif isinstance(self.json_schema_extra, dict):
                 schema.update(dict(self.json_schema_extra))
 
             media_type_obj: dict[str, Any] = {"schema": schema}
@@ -315,7 +325,9 @@ class StreamBodyParam(BodyFieldInfo):
 
             content[media_type] = media_type_obj
 
-        request_body: dict[str, Any] = {"content": content}
+        request_body: dict[str, Any] = {
+            "content": content,
+        }
         if self.description is not None:
             request_body["description"] = self.description
 
