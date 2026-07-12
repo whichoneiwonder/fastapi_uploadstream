@@ -19,6 +19,14 @@ from pydantic import BaseModel
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
+try:
+    import uvicorn  # pyright: ignore[reportMissingImports]
+
+    __uvicorn_import_error__ = None
+except ImportError as ie:
+    uvicorn = None  # type: ignore[assignment, misc]
+    __uvicorn_import_error__ = ie
+
 
 class DemoResponse(BaseModel):
     message: str
@@ -101,8 +109,6 @@ def run_demo() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        import uvicorn
-    except ImportError as ie:
-        raise RuntimeError("Uvicorn is not installed. consider installing it via ") from ie
+    if not uvicorn:
+        raise RuntimeError("Uvicorn is not installed. consider installing it via pip") from __uvicorn_import_error__
     uvicorn.run(app, port=8000)

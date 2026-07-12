@@ -1,15 +1,23 @@
 import json
 from collections.abc import AsyncIterator
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 import anyio
 import pytest
 from fastapi import Body, FastAPI, Form, UploadFile
 from httpx import ASGITransport, AsyncClient
+from starlette.requests import ClientDisconnect
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
-from .types import ASGIMessage, HTTPDisconnectMessage, HTTPRequestMessage, HTTPScope
+from .types import (
+    ASGIMessage,
+    HTTPDisconnectMessage,
+    HTTPRequestMessage,
+    HTTPResponseBodyMessage,
+    HTTPResponseStartMessage,
+    HTTPScope,
+)
 
 # @pytest.fixture
 pytest_mark = pytest.mark.parametrize("backend", ["asyncio", "trio"])
@@ -213,6 +221,78 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
         release_second_chunk.set()
 
     status = next(
+        cast(HTTPResponseStartMessage, message)["status"]
+        for message in sent_messages
+        if message["type"] == "http.response.start"
+    )
+    response_body_messages = (
+        cast(HTTPResponseBodyMessage, message).get("body", b"")
+        for message in sent_messages
+        if message["type"] == "http.response.body"
+    )
+    body = b"".join(response_body_messages)
+
+    assert status == 200
+    assert json.loads(body) == {"first": "abc", "rest": "def"}
+
+
+@pytest.mark.anyio
+async def test_streambody_treats_client_disconnect_as_end_of_stream() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/binary")
+    async def upload_binary(
+        body_content: Annotated[
+            UploadStream,
+            StreamBody(media_types="application/octet-stream", client_disconnect="eof"),
+        ],
+    ) -> dict[str, str]:
+        first = await body_content.read(3)
+        rest = await body_content.read()
+        return {
+            "first": first.decode("ascii"),
+            "rest": rest.decode("ascii"),
+        }
+
+    receive_call_count = 0
+
+    async def receive() -> ASGIMessage:
+        nonlocal receive_call_count
+        receive_call_count += 1
+
+        if receive_call_count == 1:
+            return HTTPRequestMessage(type="http.request", body=b"abc", more_body=True)
+
+        return HTTPDisconnectMessage(type="http.disconnect")
+
+    sent_messages: list[ASGIMessage] = []
+
+    async def send(message: ASGIMessage) -> None:
+        sent_messages.append(message)
+
+    scope: HTTPScope = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.3"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/binary",
+        "raw_path": b"/binary",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [
+            (b"host", b"testserver"),
+            (b"content-type", b"application/octet-stream"),
+            (b"content-length", b"6"),
+        ],
+        "client": ("127.0.0.1", 1234),
+        "server": ("testserver", 80),
+    }
+
+    await app(scope, receive, send)  # type: ignore
+
+    status = next(
         message["status"]  # type: ignore
         for message in sent_messages
         if message["type"] == "http.response.start"
@@ -220,7 +300,75 @@ async def test_streambody_starts_before_full_request_body_is_available() -> None
     body = b"".join(message.get("body", b"") for message in sent_messages if message["type"] == "http.response.body")
 
     assert status == 200
-    assert json.loads(body) == {"first": "abc", "rest": "def"}
+    assert json.loads(body) == {"first": "abc", "rest": ""}
+
+
+@pytest.mark.anyio
+async def test_streambody_raises_client_disconnect_by_default() -> None:
+    app = FastAPI()
+    install_uploadstream_openapi(app)
+
+    @app.post("/binary")
+    async def upload_binary(
+        body_content: Annotated[
+            UploadStream,
+            StreamBody(media_types="application/octet-stream"),
+        ],
+    ) -> dict[str, str]:
+        first = await body_content.read(3)
+        try:
+            rest = await body_content.read()
+        except ClientDisconnect:
+            return {"first": first.decode("ascii"), "rest": "<disconnect>"}
+        return {"first": first.decode("ascii"), "rest": rest.decode("ascii")}
+
+    receive_call_count = 0
+
+    async def receive() -> ASGIMessage:
+        nonlocal receive_call_count
+        receive_call_count += 1
+
+        if receive_call_count == 1:
+            return HTTPRequestMessage(type="http.request", body=b"abc", more_body=True)
+
+        return HTTPDisconnectMessage(type="http.disconnect")
+
+    sent_messages: list[ASGIMessage] = []
+
+    async def send(message: ASGIMessage) -> None:
+        sent_messages.append(message)
+
+    scope: HTTPScope = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.3"},
+        "http_version": "1.1",
+        "method": "POST",
+        "scheme": "http",
+        "path": "/binary",
+        "raw_path": b"/binary",
+        "query_string": b"",
+        "root_path": "",
+        "headers": [
+            (b"host", b"testserver"),
+            (b"content-type", b"application/octet-stream"),
+            (b"content-length", b"6"),
+        ],
+        "client": ("127.0.0.1", 1234),
+        "server": ("testserver", 80),
+    }
+
+    await app(scope, receive, send)  # type: ignore
+
+    status = next(
+        message["status"]  # type: ignore
+        for message in sent_messages
+        if message["type"] == "http.response.start"
+    )
+    body = b"".join(message.get("body", b"") for message in sent_messages if message["type"] == "http.response.body")
+
+    assert status == 200
+    assert json.loads(body) == {"first": "abc", "rest": "<disconnect>"}
+    assert receive_call_count == 2
 
 
 @pytest.mark.anyio
