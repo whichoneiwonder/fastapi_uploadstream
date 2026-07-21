@@ -28,6 +28,8 @@ from typing import Annotated
 from fastapi import FastAPI
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi
 
+import hashlib  # For demo only - not required.
+
 app = FastAPI()
 install_uploadstream_openapi(app)
 
@@ -39,17 +41,20 @@ async def upload_binary(
         StreamBody(
             media_types=["application/octet-stream"],
             title="Binary upload",
-            description="Raw binary request body",
+            description="Raw binary request body to hash and return metadata",
         ),
     ],
 ):
-    # NOTE: This reads the entire body into memory. For large uploads, prefer iter_chunks().
-    data = await body.read()
+    # Calculate SHA-256 hash of the uploaded data (for demo purposes)
+    sha256 = hashlib.sha256()
+    async for chunk in body.iter_chunks():
+        sha256.update(chunk)
     return {
-        "bytes": len(data),
+        "bytes": body.size,
         "content_type": body.content_type,
         "filename": body.filename,
         "size": body.size,
+        "sha256": sha256.hexdigest(),
     }
 ```
 
@@ -72,7 +77,22 @@ async def upload_large(
     async for chunk in body.iter_chunks(chunk_size=64 * 1024):
         total += len(chunk)
         # Process each chunk here.
+    return {"bytes": total}
+```
 
+## Ingesting whole file in memory (only small files)
+
+You can also read the entire upload into memory for small files:
+But beware that this can lead to high memory usage for large uploads, and should be avoided.
+```python
+@app.post("/upload-small")
+async def upload_small(
+    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])],
+):
+    total = 0
+    # watch out! this loads the entire request body!
+    data = await body.read()
+    total = len(data)
     return {"bytes": total}
 ```
 
