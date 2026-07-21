@@ -19,8 +19,10 @@ async def ingest(
         StreamBody(media_types=["application/octet-stream", "image/png", "image/jpeg"]),
     ],
 ):
-    data = await body.read()
-    return {"bytes": len(data)}
+    # copy input stream to an output stream
+    with open('output-file.bin', 'wb') as output:
+        async for data in body.iter_chunks():
+            output.write(data)
 ```
 
 ## Skip Prefix Bytes Then Process Remaining Stream

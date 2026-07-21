@@ -43,6 +43,7 @@ async def upload_binary(
         ),
     ],
 ):
+    # NOTE: This reads the entire body into memory. For large uploads, prefer iter_chunks().
     data = await body.read()
     return {
         "bytes": len(data),
