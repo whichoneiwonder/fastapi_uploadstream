@@ -29,9 +29,10 @@ from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_
 app = FastAPI()
 install_uploadstream_openapi(app)
 
+
 @app.post("/upload")
 async def upload(
-    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]
+    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])],
 ):
     data = await body.read()
     return {"bytes": len(data)}
@@ -58,10 +59,10 @@ It is yielded by the `StreamBody` dependency and should not be constructed direc
 ### Metadata attributes
 
 ```python
-body.filename      # Value of the x-filename request header, or None
-body.size          # Value of Content-Length as int, or None if absent
+body.filename  # Value of the x-filename request header, or None
+body.size  # Value of Content-Length as int, or None if absent
 body.content_type  # Content-Type header value
-body.request       # The underlying Starlette Request
+body.request  # The underlying Starlette Request
 ```
 
 ### Reading data
@@ -116,8 +117,8 @@ StreamBody(media_types=["application/octet-stream", "image/png", "image/jpeg"])
 Wildcard sub-types are also supported:
 
 ```python
-StreamBody(media_types=["image/*"])   # accepts any image/* content type
-StreamBody(media_types=["*/*"])       # accepts anything (the default)
+StreamBody(media_types=["image/*"])  # accepts any image/* content type
+StreamBody(media_types=["*/*"])  # accepts anything (the default)
 ```
 
 If the client sends a content type not in the list, the dependency raises
@@ -129,9 +130,7 @@ If the client sends a content type not in the list, the dependency raises
 
 ```python
 @app.post("/upload-large")
-async def upload_large_file(
-    body: Annotated[UploadStream, StreamBody()]
-):
+async def upload_large_file(body: Annotated[UploadStream, StreamBody()]):
     bytes_received = 0
 
     async for chunk in body.iter_chunks(chunk_size=65536):
@@ -148,11 +147,11 @@ async def upload_large_file(
 ```python
 import httpx
 
+
 @app.put("/proxy-upload")
-async def proxy_upload(
-    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]
-):
+async def proxy_upload(body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]):
     async with httpx.AsyncClient() as client:
+
         async def stream_body():
             async for chunk in body.iter_chunks():
                 yield chunk

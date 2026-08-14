@@ -20,7 +20,7 @@ async def ingest(
     ],
 ):
     # copy input stream to an output stream
-    with open('output-file.bin', 'wb') as output:
+    with open("output-file.bin", "wb") as output:
         async for data in body.iter_chunks():
             output.write(data)
 ```
