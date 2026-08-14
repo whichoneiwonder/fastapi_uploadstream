@@ -31,7 +31,9 @@ install_uploadstream_openapi(app)
 
 
 @app.post("/upload")
-async def upload(body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]):
+async def upload(
+    body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])],
+):
     data = await body.read()
     return {"bytes": len(data)}
 ```
