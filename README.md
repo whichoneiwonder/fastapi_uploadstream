@@ -29,13 +29,14 @@ from fastapi_uploadstream import UploadStream, StreamBody, install_uploadstream_
 app = FastAPI()
 install_uploadstream_openapi(app)
 
+
 @app.post("/upload")
 async def upload_file(
     body_content: Annotated[
         UploadStream,
-            StreamBody(
-                media_types=["application/octet-stream"],
-                title="File upload",
+        StreamBody(
+            media_types=["application/octet-stream"],
+            title="File upload",
         ),
     ],
 ):
@@ -67,20 +68,18 @@ Once received, you interact with the stream through `UploadStream`:
 
 ```python
 @app.post("/upload")
-async def handle_upload(
-    body: Annotated[UploadStream, StreamBody(media_types=["*/*"])]
-):
+async def handle_upload(body: Annotated[UploadStream, StreamBody(media_types=["*/*"])]):
     # Access file metadata
     print(f"Size: {body.size}")  # From Content-Length header
     print(f"Type: {body.content_type}")
     print(f"Name: {body.filename}")  # From x-filename header
-    
+
     # Read the stream in chunks
     chunk = await body.read(1024)  # Read up to 1024 bytes
-    
+
     # Read remaining data at once
     remaining = await body.read()  # Read all remaining data
-    
+
     # Read everything (resets on first call)
     all_data = await body.read(-1)  # Read all from beginning
 ```
@@ -114,22 +113,17 @@ This adds proper OpenAPI definitions for binary request bodies on your streaming
 
 ```python
 @app.post("/upload-large")
-async def upload_large_file(
-    body: Annotated[
-        UploadStream,
-        StreamBody()
-    ]
-):
+async def upload_large_file(body: Annotated[UploadStream, StreamBody()]):
     bytes_received = 0
     chunk_size = 65536  # 64KB chunks
-    
+
     while True:
         chunk = await body.read(chunk_size)
         if not chunk:
             break
         bytes_received += len(chunk)
         # Process chunk...
-    
+
     return {"total_bytes": bytes_received}
 ```
 
