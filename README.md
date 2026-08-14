@@ -1,4 +1,4 @@
-# UploadStream
+# [UploadStream](https://whichoneiwonder.github.io/fastapi_uploadstream)
 
 Streaming raw request-body helpers for FastAPI that enable efficient handling of large binary uploads without multipart complexity.
 

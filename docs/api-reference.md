@@ -7,24 +7,18 @@ objects ([`StreamBody`][fastapi_uploadstream.StreamBody] and
 
 ---
 
-## StreamBody
-
 ::: fastapi_uploadstream.StreamBody
 
 ---
 
-## StreamBodyParam
 
 ::: fastapi_uploadstream.StreamBodyParam
 
 ---
 
-## UploadStream
 
 ::: fastapi_uploadstream.UploadStream
 
 ---
-
-## install_uploadstream_openapi
 
 ::: fastapi_uploadstream.install_uploadstream_openapi

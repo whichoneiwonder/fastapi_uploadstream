@@ -23,5 +23,17 @@ jobs:
       - name: Install docs dependencies
         run: uv sync --group docs
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Build and deploy to GitHub Pages
-        run: uv run mkdocs gh-deploy --force
+        run: uv run mkdocs build --clean
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          # upload site directory created by mkdocs
+          path: './site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

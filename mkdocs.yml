@@ -5,6 +5,8 @@ repo_url: https://github.com/whichoneiwonder/fastapi_uploadstream
 repo_name: whichoneiwonder/fastapi_uploadstream
 
 theme:
+  icon:
+    logo: material/waves
   name: material
   features:
     - navigation.tabs
