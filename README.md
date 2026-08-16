@@ -1,5 +1,10 @@
 # [UploadStream](https://whichoneiwonder.github.io/fastapi_uploadstream)
 
+[[PyPI Version](https://img.shields.io/pypi/v/fastapi-uploadstream)](https://pypi.org/project/fastapi-uploadstream)
+
+- [GitHub](https://github.com/whichoneiwonder/fastapi_uploadstream)
+- [Docs](https://whichoneiwonder.github.io/fastapi_uploadstream)
+
 Streaming raw request-body helpers for FastAPI that enable efficient handling of large binary uploads without multipart complexity.
 
 This is a third-party project, not created by the FastAPI team.
