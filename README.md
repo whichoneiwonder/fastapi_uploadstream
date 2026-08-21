@@ -1,6 +1,6 @@
 # [UploadStream](https://whichoneiwonder.github.io/fastapi_uploadstream)
 
-[[PyPI Version](https://img.shields.io/pypi/v/fastapi-uploadstream)](https://pypi.org/project/fastapi-uploadstream)
+[![PyPI Version](https://img.shields.io/pypi/v/fastapi-uploadstream)](https://pypi.org/project/fastapi-uploadstream)
 
 - [GitHub](https://github.com/whichoneiwonder/fastapi_uploadstream)
 - [Docs](https://whichoneiwonder.github.io/fastapi_uploadstream)
