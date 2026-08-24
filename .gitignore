@@ -13,3 +13,6 @@ wheels/
 
 # MkDocs generated site
 site/
+
+# Sphinx generated docs
+docs/_build/
