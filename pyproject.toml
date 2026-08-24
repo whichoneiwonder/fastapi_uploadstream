@@ -52,8 +52,9 @@ standard = [
     "fastapi[standard]>=0.116.1",
 ]
 docs = [
-    "mkdocs-material>=9.7.6",
-    "mkdocstrings-python>=2.0.3",
+    "sphinx>=8.0.0",
+    "shibuya>=2025.1.0",
+    "myst-parser>=4.0.0",
 ]
 
 [tool.ruff]
