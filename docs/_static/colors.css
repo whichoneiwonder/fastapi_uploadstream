@@ -1,15 +1,16 @@
-:root {
-  --color-brand-primary: #cddc39;
-  --color-brand-content: #03a9f4;
-  --color-brand-visited: #03a9f4;
+html.light {
   --sy-c-brand: #cddc39;
   --sy-c-accent: #03a9f4;
+  --sy-c-background: #fcffdd;
 }
 
-html[data-theme="dark"] {
-  --color-brand-primary: #4caf50;
-  --color-brand-content: #03a9f4;
-  --color-brand-visited: #03a9f4;
-  --sy-c-brand: #4caf50;
-  --sy-c-accent: #03a9f4;
+html.dark {
+  --sy-c-brand: #35da3b;
+  --sy-c-accent: #10b3ff;
+  --sy-f-text: 'noto' 'roboto' 'arial' 'sans-serif';
+  --sy-c-background: #071306;
+  --accent-a8: darkgreen;
+  .sy-head {
+    background-color: var(--sy-c-brand);
+  }
 }
