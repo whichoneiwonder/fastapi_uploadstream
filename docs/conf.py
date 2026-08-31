@@ -11,10 +11,15 @@ copyright = "2026, whichoneiwonder"
 
 extensions = [
     "myst_parser",
-    "sphinx.ext.autodoc",
+    "autodoc2",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
 ]
+autodoc2_packages = [
+    "../src/fastapi_uploadstream",
+]
+autodoc2_render_plugin = "md"
+autodoc2_hidden_objects = ["private", "inherited"]
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
@@ -35,3 +40,8 @@ html_theme = "shibuya"
 html_title = "UploadStream"
 html_static_path = ["_static"]
 html_css_files = ["colors.css"]
+html_theme_options = {
+    "accent_color": "lime",
+    # Development platforms
+    "github_url": "https://github.com/lepture/shibuya",
+}
