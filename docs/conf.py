@@ -43,5 +43,5 @@ html_css_files = ["colors.css"]
 html_theme_options = {
     "accent_color": "lime",
     # Development platforms
-    "github_url": "https://github.com/lepture/shibuya",
+    "github_url": "https://github.com/whichoneiwonder/fastapi_uploadstream",
 }
