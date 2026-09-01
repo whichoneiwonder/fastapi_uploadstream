@@ -1,6 +1,6 @@
 [project]
 name = "fastapi_uploadstream"
-version = "0.1.0rc1.post1"
+version = "0.1.0rc2"
 description = "3rd party extension for streaming uploads in FastAPI"
 license = 'MIT'
 readme = "README.md"
@@ -52,8 +52,11 @@ standard = [
     "fastapi[standard]>=0.116.1",
 ]
 docs = [
-    "mkdocs-material>=9.7.6",
-    "mkdocstrings-python>=2.0.3",
+    "sphinx>=8.0.0",
+    "shibuya>=2025.1.0",
+    "myst-parser>=4.0.0",
+    "sphinx-pyproject>=0.3.0",
+    "sphinx-autodoc2>=0.5.0",
 ]
 
 [tool.ruff]

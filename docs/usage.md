@@ -19,7 +19,7 @@ pip install "fastapi[standard]"
 ## StreamBody Dependency
 
 `StreamBody` is a factory function that returns a FastAPI-compatible dependency.
-Annotate your endpoint signature to receive an [`UploadStream`][fastapi_uploadstream.UploadStream].
+Annotate your endpoint signature to receive an {class}`fastapi_uploadstream.UploadStream`.
 
 ```python
 from typing import Annotated

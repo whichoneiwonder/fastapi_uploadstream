@@ -20,7 +20,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    name: Build and deploy MkDocs site
+    name: Build and deploy Sphinx site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -36,11 +36,11 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build and deploy to GitHub Pages
-        run: uv run mkdocs build --clean
+        run: uv run sphinx-build -M html docs site
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          # upload site directory created by mkdocs
+          # upload site directory created by sphinx
           path: './site'
 
       - name: Deploy to GitHub Pages

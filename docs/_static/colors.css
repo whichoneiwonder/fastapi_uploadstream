@@ -1,0 +1,21 @@
+html.light {
+  --sy-c-brand: #cddc39;
+  --sy-c-accent: #03a9f4;
+  --sy-c-background: #fcffdd;
+  .sy-head {
+    background-color: var(--sy-c-brand);
+  }
+
+}
+
+html.dark {
+  --sy-c-brand: #CFE03E;
+  --sy-c-accent: #166e00;
+  --sy-f-text: 'noto' 'roboto' 'arial' 'sans-serif';
+  --sy-c-background: #071306;
+
+  /* --accent-a8: darkgreen; */
+  .sy-head {
+    background-color: var(--sy-c-accent);
+  }
+}
