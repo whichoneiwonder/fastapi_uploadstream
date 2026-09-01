@@ -36,12 +36,12 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build and deploy to GitHub Pages
-        run: uv run sphinx-build -M html docs docs/_build
+        run: uv run sphinx-build -M html docs site
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v4
         with:
           # upload site directory created by sphinx
-          path: './docs/_build/html'
+          path: './site'
 
       - name: Deploy to GitHub Pages
         id: deployment
