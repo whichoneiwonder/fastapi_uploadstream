@@ -1,6 +1,6 @@
 [project]
 name = "fastapi_uploadstream"
-version = "0.1.0rc2"
+version = "0.1.0"
 description = "3rd party extension for streaming uploads in FastAPI"
 license = 'MIT'
 readme = "README.md"
