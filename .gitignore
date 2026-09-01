@@ -11,8 +11,6 @@ wheels/
 .python-version
 
 
-# MkDocs generated site
+# Docs generated site
 site/
 
-# Sphinx generated docs
-docs/_build/
