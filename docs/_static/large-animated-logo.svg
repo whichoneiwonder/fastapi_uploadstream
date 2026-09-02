@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#081019"/>
+      <stop offset="60%" stop-color="#04080e"/>
+      <stop offset="100%" stop-color="#020407"/>
+    </linearGradient>
+    <linearGradient id="cyanStream" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00416a"/>
+      <stop offset="30%" stop-color="#00b4db"/>
+      <stop offset="70%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#a8f5ff"/>
+    </linearGradient>
+    <linearGradient id="tealStream" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#021b29"/>
+      <stop offset="50%" stop-color="#0083b0"/>
+      <stop offset="100%" stop-color="#80e5ff"/>
+    </linearGradient>
+    <linearGradient id="coreGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="50%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="#70e1ff"/>
+    </linearGradient>
+    <filter id="heavyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur"/>
+    </filter>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur"/>
+    </filter>
+    <style>
+      @keyframes linePulse{0%,to{stroke-opacity:.35;filter:drop-shadow(0 0 1px #00f2fe)}50%{stroke-opacity:1;filter:drop-shadow(0 0 8px #00f2fe)}}@keyframes coreSurge{0%,to{stroke-opacity:.6;stroke-width:3px}50%{stroke-opacity:1;stroke-width:5px;filter:drop-shadow(0 0 12px #fff)}}@keyframes twinkleSparkle{0%,to{opacity:.2;transform:scale(.5) rotate(0deg)}50%{opacity:1;transform:scale(1.3) rotate(45deg)}}@keyframes twinkleSoft{0%,to{opacity:.3;transform:scale(.7)}50%{opacity:.95;transform:scale(1.15)}}@keyframes particleFloat{0%,to{opacity:.1;transform:translateY(0)}50%{opacity:1;transform:translateY(-6px)}}.star{transform-box:fill-box;transform-origin:center}.line-pulse-1{animation:linePulse 3s ease-in-out infinite 0s}.line-pulse-2{animation:linePulse 2.4s ease-in-out infinite .4s}.line-pulse-3{animation:linePulse 3.6s ease-in-out infinite .8s}.line-pulse-4{animation:linePulse 2.8s ease-in-out infinite 1.2s}.line-pulse-5{animation:linePulse 3.2s ease-in-out infinite 1.6s}.star-twinkle-1{animation:twinkleSparkle 2.2s ease-in-out infinite 0s}.star-twinkle-2{animation:twinkleSparkle 3.1s ease-in-out infinite .5s}.star-twinkle-3{animation:twinkleSparkle 1.8s ease-in-out infinite 1s}.star-twinkle-4{animation:twinkleSoft 2.5s ease-in-out infinite .3s}.star-twinkle-5{animation:twinkleSoft 3.4s ease-in-out infinite .9s}.p-float-1{animation:particleFloat 1.8s ease-in-out infinite .1s}.p-float-2{animation:particleFloat 2.3s ease-in-out infinite .6s}.p-float-3{animation:particleFloat 1.5s ease-in-out infinite 1.1s}
+    </style>
+  </defs>
+  <rect width="900" height="680" fill="url(#bgGrad)" rx="16"/>
+  <g transform="translate(25 -10)">
+    <ellipse cx="425" cy="470" rx="230" ry="8" fill="#00f2fe" opacity=".35" filter="url(#heavyGlow)"/>
+    <path stroke="url(#cyanStream)" stroke-width="2.5" stroke-linecap="round" opacity=".85" d="M180 470h490"/>
+    <path class="line-pulse-1" d="M220 470c40-110 200-150 180-270C380 90 480 50 560 30" fill="none" stroke="#00f2fe" stroke-width="22" stroke-linecap="round" filter="url(#heavyGlow)"/>
+    <path class="line-pulse-3" d="M320 470c30-90 150-140 140-260-10-100 80-140 160-165" fill="none" stroke="#0083b0" stroke-width="18" stroke-linecap="round" filter="url(#heavyGlow)"/>
+    <path class="line-pulse-2" d="M210 470c35-115 175-155 160-265-15-100 65-140 125-170" fill="none" stroke="url(#tealStream)" stroke-width="2.5"/>
+    <path class="line-pulse-4" d="M230 470c30-110 165-150 150-260-15-100 70-140 130-170" fill="none" stroke="url(#cyanStream)" stroke-width="4" stroke-linecap="round"/>
+    <path class="line-pulse-1" d="M245 470c30-105 160-145 145-258-15-100 70-140 135-169" fill="none" stroke="#00f2fe" stroke-width="1.5"/>
+    <path class="line-pulse-5" d="M260 470c25-100 155-142 140-255-15-100 70-140 140-169" fill="none" stroke="url(#cyanStream)" stroke-width="6" stroke-linecap="round" filter="url(#softGlow)"/>
+    <path class="line-pulse-3" d="M280 470c20-95 145-140 130-252-15-100 70-140 145-168" fill="none" stroke="#a8f5ff" stroke-width="2"/>
+    <path class="line-pulse-2" d="M295 470c20-92 140-138 125-250-15-100 70-140 150-167" fill="none" stroke="url(#cyanStream)" stroke-width="8" stroke-linecap="round"/>
+    <path class="line-pulse-4" d="M315 470c15-90 130-135 115-248-15-100 70-140 155-165" fill="none" stroke="url(#coreGlow)" stroke-width="3" stroke-linecap="round" filter="url(#softGlow)"/>
+    <path d="M330 470c15-88 125-132 110-245-15-100 70-140 158-164" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" filter="url(#softGlow)" style="animation:coreSurge 2s ease-in-out infinite .2s"/>
+    <path class="line-pulse-1" d="M345 470c13-85 117-130 103-243-14-100 70-140 160-163" fill="none" stroke="#00f2fe" stroke-width="2.5"/>
+    <path class="line-pulse-5" d="M360 470c10-82 110-128 96-240-14-100 70-140 162-162" fill="none" stroke="url(#cyanStream)" stroke-width="7" stroke-linecap="round"/>
+    <path class="line-pulse-2" d="M375 470c7-80 103-125 89-238-14-100 70-140 164-160" fill="none" stroke="#80e5ff" stroke-width="2"/>
+    <path class="line-pulse-3" d="M390 470c5-78 96-122 82-235-14-100 70-140 166-159" fill="none" stroke="url(#tealStream)" stroke-width="5" stroke-linecap="round"/>
+    <path class="line-pulse-4" d="M410 470c2-75 86-118 72-232-14-100 70-140 168-157" fill="none" stroke="#00f2fe" stroke-width="3" stroke-linecap="round"/>
+    <path class="line-pulse-1" d="M430 470c-2-72 76-115 62-230-14-100 70-138 170-154" fill="none" stroke="url(#cyanStream)" stroke-width="4" stroke-linecap="round"/>
+    <path class="line-pulse-5" d="M450 470c-5-70 66-112 52-227-14-100 70-137 172-151" fill="none" stroke="#0083b0" stroke-width="2"/>
+    <path class="line-pulse-2" d="M470 470c-10-65 56-108 42-224-14-100 70-136 173-148" fill="none" stroke="#00f2fe" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <path class="star star-twinkle-1" d="M600 30q0 20 20 20-20 0-20 20 0-20-20-20 20 0 20-20" fill="#fff" filter="url(#heavyGlow)"/>
+    <path class="star star-twinkle-3" d="M640 65q0 15 15 15-15 0-15 15 0-15-15-15 15 0 15-15" fill="#00f2fe" filter="url(#softGlow)"/>
+    <path class="star star-twinkle-2" d="M520 20q0 12 12 12-12 0-12 12 0-12-12-12 12 0 12-12" fill="#fff" filter="url(#softGlow)"/>
+    <path class="star star-twinkle-4" d="M460 85q0 13 13 13-13 0-13 13 0-13-13-13 13 0 13-13" fill="#80e5ff" filter="url(#softGlow)"/>
+    <path class="star star-twinkle-5" d="M675 80q0 10 10 10-10 0-10 10 0-10-10-10 10 0 10-10" fill="#fff"/>
+    <path class="star star-twinkle-1" d="M555 75q0 9 9 9-9 0-9 9 0-9-9-9 9 0 9-9" fill="#00f2fe"/>
+    <path class="star star-twinkle-3" d="M490 50q0 7 7 7-7 0-7 7 0-7-7-7 7 0 7-7" fill="#fff"/>
+    <path class="star star-twinkle-2" d="M410 130q0 8 8 8-8 0-8 8 0-8-8-8 8 0 8-8" fill="#70e1ff"/>
+    <path class="star star-twinkle-4" d="M370 180q0 7 7 7-7 0-7 7 0-7-7-7 7 0 7-7" fill="#fff"/>
+    <path class="star star-twinkle-5" d="M580 120q0 7 7 7-7 0-7 7 0-7-7-7 7 0 7-7" fill="#00f2fe"/>
+    <path class="star star-twinkle-1" d="M625 115q0 6 6 6-6 0-6 6 0-6-6-6 6 0 6-6" fill="#a8f5ff"/>
+    <path class="star star-twinkle-3" d="M700 110q0 6 6 6-6 0-6 6 0-6-6-6 6 0 6-6" fill="#fff"/>
+    <path class="star star-twinkle-2" d="M440 40q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#80e5ff"/>
+    <path class="star star-twinkle-4" d="M470 150q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#fff"/>
+    <path class="star star-twinkle-5" d="M535 140q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#00f2fe"/>
+    <path class="star star-twinkle-1" d="M320 280q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#fff"/>
+    <path class="star star-twinkle-3" d="M280 340q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#00f2fe"/>
+    <path class="star star-twinkle-2" d="M650 145q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#fff"/>
+    <path class="star star-twinkle-4" d="M510 100q0 4 4 4-4 0-4 4 0-4-4-4 4 0 4-4" fill="#80e5ff"/>
+    <circle class="p-float-1" cx="615" cy="40" r="3" fill="#fff" filter="url(#softGlow)"/>
+    <circle class="p-float-2" cx="575" cy="55" r="2" fill="#00f2fe"/>
+    <circle class="p-float-3" cx="630" cy="95" r="2.5" fill="#fff"/>
+    <circle class="p-float-1" cx="660" cy="70" r="1.5" fill="#a8f5ff"/>
+    <circle class="p-float-2" cx="545" cy="35" r="2" fill="#fff"/>
+    <circle class="p-float-3" cx="495" cy="75" r="1.5" fill="#00f2fe"/>
+    <circle class="p-float-1" cx="435" cy="115" r="2.5" fill="#fff"/>
+    <circle class="p-float-2" cx="475" cy="125" r="1.5" fill="#70e1ff"/>
+    <circle class="p-float-3" cx="515" cy="165" r="2" fill="#fff"/>
+    <circle class="p-float-1" cx="560" cy="150" r="1.5" fill="#00f2fe"/>
+    <circle class="p-float-2" cx="395" cy="200" r="2" fill="#80e5ff"/>
+    <circle class="p-float-3" cx="425" cy="210" r="1.5" fill="#fff"/>
+    <circle class="p-float-1" cx="355" cy="260" r="2.5" fill="#00f2fe"/>
+    <circle class="p-float-2" cx="375" cy="275" r="1" fill="#fff"/>
+    <circle class="p-float-3" cx="310" cy="320" r="2" fill="#a8f5ff"/>
+    <circle class="p-float-1" cx="335" cy="335" r="1.5" fill="#fff"/>
+    <circle class="p-float-2" cx="270" cy="390" r="2" fill="#00f2fe"/>
+    <circle class="p-float-3" cx="290" cy="405" r="1.5" fill="#fff"/>
+    <circle class="p-float-1" cx="235" cy="430" r="2.5" fill="#80e5ff"/>
+    <circle class="p-float-2" cx="250" cy="445" r="1" fill="#fff"/>
+  </g>
+  <text x="450" y="555" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="38" fill="#fff" letter-spacing="9" text-anchor="middle">
+    UPLOADSTREAM
+  </text>
+  <text x="450" y="592" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-weight="600" font-size="15" fill="#00f2fe" letter-spacing="5" text-anchor="middle" opacity=".9">
+    Upload Stream 
+  </text>
+</svg>
