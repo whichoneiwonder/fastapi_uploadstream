@@ -14,7 +14,7 @@ extensions = [
     "autodoc2",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinx_copybutton"
+    "sphinx_copybutton",
 ]
 autodoc2_packages = [
     "../src/fastapi_uploadstream",
@@ -48,6 +48,5 @@ html_theme_options = {
     "logo_target": "https://whichoneiwonder.github.io/fastapi_uploadstream",
     "og_image_url": "https://whichoneiwonder.github.io/fastapi_uploadstream/_static/cropped-logo-colored.svg",
 }
-# html_logo = "_static/logo.png"
+# could also add html_logo = "_static/logo.png" if needed, but the logo doesn't look great when small.
 html_favicon = "_static/logo.png"
-
