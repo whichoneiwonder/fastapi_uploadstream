@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#081019"/>
+      <stop offset="60%" stop-color="#04080e"/>
+      <stop offset="100%" stop-color="#020407"/>
+    </linearGradient>
+
+    <!-- Main Cyan Stream Gradient -->
+    <linearGradient id="cyanStream" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00416a"/>
+      <stop offset="30%" stop-color="#00b4db"/>
+      <stop offset="70%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#a8f5ff"/>
+    </linearGradient>
+
+    <!-- Secondary Teal Stream Gradient -->
+    <linearGradient id="tealStream" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#021B29"/>
+      <stop offset="50%" stop-color="#0083b0"/>
+      <stop offset="100%" stop-color="#80e5ff"/>
+    </linearGradient>
+
+    <!-- Bright Core Gradient -->
+    <linearGradient id="coreGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#70e1ff"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="heavyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="680" fill="url(#bgGrad)" rx="16"/>
+
+  <g transform="translate(25, -10)">
+    <!-- Base Horizon Glow Line -->
+    <ellipse cx="425" cy="470" rx="230" ry="8" fill="#00f2fe" opacity="0.35" filter="url(#heavyGlow)"/>
+    <line x1="180" y1="470" x2="670" y2="470" stroke="url(#cyanStream)" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+
+    <!-- ================= DENSE STREAM LINES ================= -->
+    <!-- Ambient Backdrop Flow Lines -->
+    <path d="M 220 470 C 260 360, 420 320, 400 200 C 380 90, 480 50, 560 30" fill="none" stroke="#00f2fe" stroke-width="22" stroke-linecap="round" opacity="0.12" filter="url(#heavyGlow)"/>
+    <path d="M 320 470 C 350 380, 470 330, 460 210 C 450 110, 540 70, 620 45" fill="none" stroke="#0083b0" stroke-width="18" stroke-linecap="round" opacity="0.15" filter="url(#heavyGlow)"/>
+
+    <!-- Outer & Secondary Stream Lines (18+ Curved Lines) -->
+    <path d="M 210 470 C 245 355, 385 315, 370 205 C 355 105, 435 65, 495 35" fill="none" stroke="url(#tealStream)" stroke-width="2.5" opacity="0.6"/>
+    <path d="M 230 470 C 260 360, 395 320, 380 210 C 365 110, 450 70, 510 40" fill="none" stroke="url(#cyanStream)" stroke-width="4" stroke-linecap="round" opacity="0.75"/>
+    <path d="M 245 470 C 275 365, 405 325, 390 212 C 375 112, 460 72, 525 43" fill="none" stroke="#00f2fe" stroke-width="1.5" opacity="0.8"/>
+    <path d="M 260 470 C 285 370, 415 328, 400 215 C 385 115, 470 75, 540 46" fill="none" stroke="url(#cyanStream)" stroke-width="6" stroke-linecap="round" filter="url(#softGlow)"/>
+    <path d="M 280 470 C 300 375, 425 330, 410 218 C 395 118, 480 78, 555 50" fill="none" stroke="#a8f5ff" stroke-width="2" opacity="0.9"/>
+    <path d="M 295 470 C 315 378, 435 332, 420 220 C 405 120, 490 80, 570 53" fill="none" stroke="url(#cyanStream)" stroke-width="8" stroke-linecap="round"/>
+    
+    <!-- Central Core High-Density Lines -->
+    <path d="M 315 470 C 330 380, 445 335, 430 222 C 415 122, 500 82, 585 57" fill="none" stroke="url(#coreGlow)" stroke-width="3" stroke-linecap="round" filter="url(#softGlow)"/>
+    <path d="M 330 470 C 345 382, 455 338, 440 225 C 425 125, 510 85, 598 61" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" filter="url(#softGlow)"/>
+    <path d="M 345 470 C 358 385, 462 340, 448 227 C 434 127, 518 87, 608 64" fill="none" stroke="#00f2fe" stroke-width="2.5" opacity="0.95"/>
+    <path d="M 360 470 C 370 388, 470 342, 456 230 C 442 130, 526 90, 618 68" fill="none" stroke="url(#cyanStream)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 375 470 C 382 390, 478 345, 464 232 C 450 132, 534 92, 628 72" fill="none" stroke="#80e5ff" stroke-width="2" opacity="0.85"/>
+    <path d="M 390 470 C 395 392, 486 348, 472 235 C 458 135, 542 95, 638 76" fill="none" stroke="url(#tealStream)" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Outer Right Extension Lines -->
+    <path d="M 410 470 C 412 395, 496 352, 482 238 C 468 138, 552 98, 650 81" fill="none" stroke="#00f2fe" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+    <path d="M 430 470 C 428 398, 506 355, 492 240 C 478 140, 562 102, 662 86" fill="none" stroke="url(#cyanStream)" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+    <path d="M 450 470 C 445 400, 516 358, 502 243 C 488 143, 572 106, 674 92" fill="none" stroke="#0083b0" stroke-width="2" opacity="0.5"/>
+    <path d="M 470 470 C 460 405, 526 362, 512 246 C 498 146, 582 110, 685 98" fill="none" stroke="#00f2fe" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
+
+    <!-- ================= NUMEROUS BEAM-UP STARS ================= -->
+    <!-- Large Focal Stars -->
+    <path d="M 600 30 Q 600 50 620 50 Q 600 50 600 70 Q 600 50 580 50 Q 600 50 600 30 Z" fill="#ffffff" filter="url(#heavyGlow)"/>
+    <path d="M 640 65 Q 640 80 655 80 Q 640 80 640 95 Q 640 80 625 80 Q 640 80 640 65 Z" fill="#00f2fe" filter="url(#softGlow)"/>
+    <path d="M 520 20 Q 520 32 532 32 Q 520 32 520 44 Q 520 32 508 32 Q 520 32 520 20 Z" fill="#ffffff" filter="url(#softGlow)"/>
+    <path d="M 460 85 Q 460 98 473 98 Q 460 98 460 111 Q 460 98 447 98 Q 460 98 460 85 Z" fill="#80e5ff" filter="url(#softGlow)"/>
+    
+    <!-- Medium Sparkle Stars -->
+    <path d="M 675 80 Q 675 90 685 90 Q 675 90 675 100 Q 675 90 665 90 Q 675 90 675 80 Z" fill="#ffffff"/>
+    <path d="M 555 75 Q 555 84 564 84 Q 555 84 555 93 Q 555 84 546 84 Q 555 84 555 75 Z" fill="#00f2fe"/>
+    <path d="M 490 50 Q 490 57 497 57 Q 490 57 490 64 Q 490 57 483 57 Q 490 57 490 50 Z" fill="#ffffff"/>
+    <path d="M 410 130 Q 410 138 418 138 Q 410 138 410 146 Q 410 138 402 138 Q 410 138 410 130 Z" fill="#70e1ff"/>
+    <path d="M 370 180 Q 370 187 377 187 Q 370 187 370 194 Q 370 187 363 187 Q 370 187 370 180 Z" fill="#ffffff"/>
+    <path d="M 580 120 Q 580 127 587 127 Q 580 127 580 134 Q 580 127 573 127 Q 580 127 580 120 Z" fill="#00f2fe"/>
+    <path d="M 625 115 Q 625 121 631 121 Q 625 121 625 127 Q 625 121 619 121 Q 625 121 625 115 Z" fill="#a8f5ff"/>
+    <path d="M 700 110 Q 700 116 706 116 Q 700 116 700 122 Q 700 116 694 116 Q 700 116 700 110 Z" fill="#ffffff"/>
+
+    <!-- Small & Micro Ambient Stars -->
+    <path d="M 440 40 Q 440 44 444 44 Q 440 44 440 48 Q 440 44 436 44 Q 440 44 440 40 Z" fill="#80e5ff"/>
+    <path d="M 470 150 Q 470 154 474 154 Q 470 154 470 158 Q 470 154 466 154 Q 470 154 470 150 Z" fill="#ffffff"/>
+    <path d="M 535 140 Q 535 144 539 144 Q 535 144 535 148 Q 535 144 531 144 Q 535 144 535 140 Z" fill="#00f2fe"/>
+    <path d="M 320 280 Q 320 284 324 284 Q 320 284 320 288 Q 320 284 316 284 Q 320 284 320 280 Z" fill="#ffffff" opacity="0.8"/>
+    <path d="M 280 340 Q 280 344 284 344 Q 280 344 280 348 Q 280 344 276 344 Q 280 344 280 340 Z" fill="#00f2fe" opacity="0.8"/>
+    <path d="M 650 145 Q 650 149 654 149 Q 650 149 650 153 Q 650 149 646 149 Q 650 149 650 145 Z" fill="#ffffff"/>
+    <path d="M 510 100 Q 510 104 514 104 Q 510 104 510 108 Q 510 104 506 104 Q 510 104 510 100 Z" fill="#80e5ff"/>
+
+    <!-- ================= TRANSPORTER DUST & PARTICLES ================= -->
+    <circle cx="615" cy="40" r="3" fill="#ffffff" filter="url(#softGlow)"/>
+    <circle cx="575" cy="55" r="2" fill="#00f2fe"/>
+    <circle cx="630" cy="95" r="2.5" fill="#ffffff"/>
+    <circle cx="660" cy="70" r="1.5" fill="#a8f5ff"/>
+    <circle cx="545" cy="35" r="2" fill="#ffffff"/>
+    <circle cx="495" cy="75" r="1.5" fill="#00f2fe"/>
+    <circle cx="435" cy="115" r="2.5" fill="#ffffff"/>
+    <circle cx="475" cy="125" r="1.5" fill="#70e1ff"/>
+    <circle cx="515" cy="165" r="2" fill="#ffffff"/>
+    <circle cx="560" cy="150" r="1.5" fill="#00f2fe"/>
+    <circle cx="395" cy="200" r="2" fill="#80e5ff"/>
+    <circle cx="425" cy="210" r="1.5" fill="#ffffff"/>
+    <circle cx="355" cy="260" r="2.5" fill="#00f2fe"/>
+    <circle cx="375" cy="275" r="1" fill="#ffffff"/>
+    <circle cx="310" cy="320" r="2" fill="#a8f5ff"/>
+    <circle cx="335" cy="335" r="1.5" fill="#ffffff"/>
+    <circle cx="270" cy="390" r="2" fill="#00f2fe"/>
+    <circle cx="290" cy="405" r="1.5" fill="#ffffff"/>
+    <circle cx="235" cy="430" r="2.5" fill="#80e5ff"/>
+    <circle cx="250" cy="445" r="1" fill="#ffffff"/>
+  </g>
+
+  <!-- ================= TYPOGRAPHY ================= -->
+  <text x="450" y="555" 
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
+        font-weight="800" 
+        font-size="38" 
+        fill="#ffffff" 
+        letter-spacing="9" 
+        text-anchor="middle">
+    UPLOADSTREAM
+  </text>
+  
+  <text x="450" y="592" 
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
+        font-weight="600" 
+        font-size="15" 
+        fill="#00f2fe" 
+        letter-spacing="5" 
+        text-anchor="middle" 
+        opacity="0.9">
+    FASTAPI EXTENSION
+  </text>
+</svg>
+

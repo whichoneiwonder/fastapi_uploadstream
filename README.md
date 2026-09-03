@@ -1,5 +1,8 @@
 # [UploadStream](https://whichoneiwonder.github.io/fastapi_uploadstream)
 
+Batteries-included handlers for streaming request content.
+Stream request content without multipart or form-data, and without loading it all into memory.
+
 [![PyPI Version](https://img.shields.io/pypi/v/fastapi-uploadstream)](https://pypi.org/project/fastapi-uploadstream)
 
 - [GitHub](https://github.com/whichoneiwonder/fastapi_uploadstream)

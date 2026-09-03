@@ -14,6 +14,7 @@ extensions = [
     "autodoc2",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinx_copybutton"
 ]
 autodoc2_packages = [
     "../src/fastapi_uploadstream",
@@ -44,4 +45,9 @@ html_theme_options = {
     "accent_color": "lime",
     # Development platforms
     "github_url": "https://github.com/whichoneiwonder/fastapi_uploadstream",
+    "logo_target": "https://whichoneiwonder.github.io/fastapi_uploadstream",
+    "og_image_url": "https://whichoneiwonder.github.io/fastapi_uploadstream/_static/cropped-logo-colored.svg",
 }
+# html_logo = "_static/logo.png"
+html_favicon = "_static/logo.png"
+
