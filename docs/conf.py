@@ -46,7 +46,7 @@ html_theme_options = {
     # Development platforms
     "github_url": "https://github.com/whichoneiwonder/fastapi_uploadstream",
     "logo_target": "https://whichoneiwonder.github.io/fastapi_uploadstream",
-    "og_image_url": "https://whichoneiwonder.github.io/fastapi_uploadstream/_static/cropped-colored-logo.svg",
+    "og_image_url": "https://whichoneiwonder.github.io/fastapi_uploadstream/_static/cropped-logo-colored.svg",
 }
 # html_logo = "_static/logo.png"
 html_favicon = "_static/logo.png"
