@@ -1,3 +1,4 @@
+![Hero](_static/cropped-logo-colored.svg)
 ```{include} ../README.md
 ```
 
