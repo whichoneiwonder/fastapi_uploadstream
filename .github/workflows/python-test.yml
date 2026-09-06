@@ -5,6 +5,7 @@ on:
     branches:
     - main
     - release/*
+  pull_request: {}
 
 jobs:
   lint:
@@ -20,9 +21,12 @@ jobs:
         uvx ruff format --check
         uvx ruff check
   test:
+    if: github.event_name != 'pull_request'
     name: Test on Python ${{ matrix.python-version }} - ${{ matrix.dependency-pattern }} deps
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
+      max-parallel: 2
       matrix:
         python-version: 
           - '3.10'

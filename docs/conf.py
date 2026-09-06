@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import os
 import sys
 
@@ -15,6 +16,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "sphinxext.opengraph",
 ]
 autodoc2_packages = [
     "../src/fastapi_uploadstream",
@@ -28,25 +30,39 @@ source_suffix = {
     ".md": "markdown",
 }
 
-myst_enable_extensions = [
-    "colon_fence",
-    "deflist",
-    "fieldlist",
-]
+myst_enable_extensions = ["colon_fence", "deflist", "fieldlist", "attrs_inline"]
 
 autodoc_member_order = "bysource"
 autodoc_typehints = "description"
+MAIN_URL = "https://whichoneiwonder.github.io/fastapi_uploadstream"
 
 html_theme = "shibuya"
 html_title = "UploadStream"
 html_static_path = ["_static"]
 html_css_files = ["colors.css"]
+ogp_site_url = MAIN_URL
+ogp_image = f"{MAIN_URL}/_static/cropped-logo-colored.svg"
+ogp_social_cards = {
+    "enable": True,
+    "image": f"{MAIN_URL}/_static/logo.png",
+    "title": "UploadStream",
+    "line_color": "#009B00",
+}
+
+google_site_verification = os.getenv("GOOGLE_SITE_VERIFICATION")
+ogp_custom_meta_tags = []
+if google_site_verification:
+    ogp_custom_meta_tags.append(
+        f'<meta name="google-site-verification" content="{html.escape(google_site_verification, quote=True)}" />'
+    )
+
+
 html_theme_options = {
     "accent_color": "lime",
     # Development platforms
     "github_url": "https://github.com/whichoneiwonder/fastapi_uploadstream",
-    "logo_target": "https://whichoneiwonder.github.io/fastapi_uploadstream",
-    "og_image_url": "https://whichoneiwonder.github.io/fastapi_uploadstream/_static/cropped-logo-colored.svg",
+    "logo_target": MAIN_URL,
+    "og_image_url": f"{MAIN_URL}/_static/logo.png",
 }
 # could also add html_logo = "_static/logo.png" if needed, but the logo doesn't look great when small.
 html_favicon = "_static/logo.png"

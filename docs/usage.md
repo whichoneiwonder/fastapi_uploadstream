@@ -11,7 +11,7 @@ pip install fastapi_uploadstream
 For the full FastAPI standard extras (Uvicorn, etc.):
 
 ```bash
-pip install "fastapi[standard]"
+pip install "fastapi_uploadstream[standard]"
 ```
 
 ---
