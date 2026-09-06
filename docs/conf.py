@@ -45,7 +45,7 @@ html_css_files = ["colors.css"]
 google_site_verification = os.getenv("GOOGLE_SITE_VERIFICATION")
 ogp_custom_meta_tags = (
     [f'<meta name="google-site-verification" content="{html.escape(google_site_verification, quote=True)}" />']
-    if google_site_verification
+    if google_site_verification not in (None, "")
     else []
 )
 html_theme_options = {
