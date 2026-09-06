@@ -37,6 +37,8 @@ jobs:
 
       - name: Build and deploy to GitHub Pages
         run: uv run sphinx-build -M html docs site
+        env:
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v5
