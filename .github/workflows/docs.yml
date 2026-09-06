@@ -37,6 +37,7 @@ jobs:
 
       - name: Build and deploy to GitHub Pages
         run: uv run sphinx-build -M html docs site
+
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v5
         with:
