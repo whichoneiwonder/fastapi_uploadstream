@@ -16,7 +16,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
-   'sphinxext.opengraph',
+    "sphinxext.opengraph",
 ]
 autodoc2_packages = [
     "../src/fastapi_uploadstream",
@@ -30,12 +30,7 @@ source_suffix = {
     ".md": "markdown",
 }
 
-myst_enable_extensions = [
-    "colon_fence",
-    "deflist",
-    "fieldlist",
-    "attrs_inline"
-]
+myst_enable_extensions = ["colon_fence", "deflist", "fieldlist", "attrs_inline"]
 
 autodoc_member_order = "bysource"
 autodoc_typehints = "description"
@@ -51,7 +46,7 @@ ogp_social_cards = {
     "enable": True,
     "image": f"{MAIN_URL}/_static/logo.png",
     "title": "UploadStream",
-    "line_color": "#009B00"
+    "line_color": "#009B00",
 }
 
 google_site_verification = os.getenv("GOOGLE_SITE_VERIFICATION")
