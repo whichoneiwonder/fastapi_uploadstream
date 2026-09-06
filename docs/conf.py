@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import os
 import sys
 
@@ -41,6 +42,12 @@ html_theme = "shibuya"
 html_title = "UploadStream"
 html_static_path = ["_static"]
 html_css_files = ["colors.css"]
+google_site_verification = os.getenv("GOOGLE_SITE_VERIFICATION")
+ogp_custom_meta_tags = (
+    [f'<meta name="google-site-verification" content="{html.escape(google_site_verification, quote=True)}" />']
+    if google_site_verification
+    else []
+)
 html_theme_options = {
     "accent_color": "lime",
     # Development platforms
