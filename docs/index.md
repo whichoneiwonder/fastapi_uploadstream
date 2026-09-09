@@ -5,7 +5,7 @@ myst:
 description: Stream request content without multipart or form-data, and without loading it all into memory.
 ---
 
-![fastapi uploadstream](_static/cropped-logo-colored.svg){width=500px height=500px align=center}
+![fastapi uploadstream](_static/cropped-logo-colored.svg){width=700px height=350px align=right}
 ```{include} ../README.md
 ```
 

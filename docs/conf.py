@@ -41,7 +41,7 @@ html_title = "UploadStream"
 html_static_path = ["_static"]
 html_css_files = ["colors.css"]
 ogp_site_url = MAIN_URL
-ogp_image = f"{MAIN_URL}/_static/cropped-logo-colored.svg"
+ogp_image = f"{MAIN_URL}/_static/generated_og_logo.png"
 ogp_social_cards = {
     "enable": True,
     "image": f"{MAIN_URL}/_static/logo.png",
