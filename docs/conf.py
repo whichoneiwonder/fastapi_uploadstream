@@ -28,6 +28,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 source_suffix = {
     ".md": "markdown",
+    ".svg": "image/svg+xml",
 }
 
 myst_enable_extensions = ["colon_fence", "deflist", "fieldlist", "attrs_inline"]
@@ -41,11 +42,11 @@ html_title = "UploadStream"
 html_static_path = ["_static"]
 html_css_files = ["colors.css"]
 ogp_site_url = MAIN_URL
-ogp_image = f"{MAIN_URL}/_static/generated_og_logo.png"
+ogp_image = f"{MAIN_URL}/_static/generated_og_logo_opt.png"
 ogp_social_cards = {
     "enable": True,
-    "image": f"{MAIN_URL}/_static/logo.png",
-    "title": "UploadStream",
+    "image": f"{MAIN_URL}/_static/generated_og_logo_opt.png",
+    "title": "UploadStream - FastAPI extensions for streaming file uploads",
     "line_color": "#009B00",
 }
 
