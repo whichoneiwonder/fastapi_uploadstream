@@ -16,4 +16,5 @@ self
 usage
 api-reference
 agent-skill
+changelog
 ```

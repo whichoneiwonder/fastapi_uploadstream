@@ -5,7 +5,7 @@ from typing import Annotated, Any, cast
 import anyio
 import pytest
 from fastapi import Body, FastAPI, Form, UploadFile
-from httpx import ASGITransport, AsyncClient
+from httpx2 import ASGITransport, AsyncClient
 from starlette.requests import ClientDisconnect
 
 from fastapi_uploadstream import StreamBody, UploadStream, install_uploadstream_openapi

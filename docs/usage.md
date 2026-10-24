@@ -145,12 +145,12 @@ async def upload_large_file(body: Annotated[UploadStream, StreamBody()]):
 ## Example: Proxy to Object Storage
 
 ```python
-import httpx
+import httpx2
 
 
 @app.put("/proxy-upload")
 async def proxy_upload(body: Annotated[UploadStream, StreamBody(media_types=["application/octet-stream"])]):
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
 
         async def stream_body():
             async for chunk in body.iter_chunks():
